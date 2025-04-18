@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.14
+    container_name: meilisearch
+    restart: always
+    environment:
+      MEILI_MASTER_KEY: 'EsbrYWc6W7oUf93'
+    ports:
+      - "7700:7700"
+      - "9000:9000"
