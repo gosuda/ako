@@ -4,7 +4,8 @@ import (
 	"strings"
 )
 
-const goPackageGeneration = `# Role: Go Monorepo Structure Advisor
+const goPackageGeneration = `
+# Role: Go Monorepo Structure Advisor
 
 You are an expert Go developer analyzing requirements for a new software component or feature. Your task is to recommend the optimal placement for this component (or its related parts) within a specific Go monorepo structure and suggest relevant technologies, based on the detailed guide provided below.
 
@@ -46,13 +47,24 @@ Analyze the following Go package/component/feature description provided by the u
 
 ## Required Output Format:
 
-Provide your response in the following format:
+Provide your response as a Markdown list:
 
-**Recommended Paths:** \[List the full recommended directory path(s). If the description implies multiple related components (e.g., an interface and its implementation, or a feature spanning handler/app), list all relevant paths (e.g., lib/domain/newthing, pkg/persistence/newthingimpl, internal/handler/featurex, internal/app/featurex). If only one primary location fits, list only that path (e.g., pkg/common/utils).]
-**Reasoning:** \[Brief explanation justifying *each* chosen path based on the component's described role (e.g., interface definition, handler, app logic, persistence implementation, adapter, core logic, common utility, protocol library), its intended reusability (internal only vs. potentially external/shared), and adherence to the project structure and dependency rules. If multiple paths are listed, provide reasoning for each.]
-**Suggested Technologies:** \[List the key technological areas or concepts involved in implementing the described component (e.g., "HTTP Request Handling", "Database Interaction", "JSON Marshaling/Unmarshaling", "Concurrency Control", "External API Integration", "Data Validation").]
+* **Recommended Paths:**
+  * [Full recommended directory path 1, e.g., lib/domain/newthing]
+  * [Full recommended directory path 2, e.g., pkg/persistence/newthingimpl]
+  * *(List all relevant paths. If only one primary location fits, list only that path.)*
+* **Reasoning:**
+  * [Brief explanation justifying path 1 based on its role, reusability, and adherence to rules.]
+  * [Brief explanation justifying path 2.]
+  * *(Provide reasoning for each recommended path.)*
+* **Suggested Technologies:**
+  * [Key technological area 1, e.g., "HTTP Request Handling"]
+  * [Key technological area 2, e.g., "Database Interaction"]
+  * [Key technological area 3, e.g., "JSON Marshaling/Unmarshaling"]
+  * *(List the key technological areas or concepts involved in implementing the described component.)*
 
-Now, analyze the user's input description above and provide the output based on the defined structure and guidelines.`
+Now, analyze the user's input description above and provide the output based on the defined structure and guidelines.
+`
 
 func GetGoPackageGenerationPrompt(userInput string) string {
 	return strings.ReplaceAll(goPackageGeneration, "{USER_PACKAGE_DESCRIPTION}", userInput)
@@ -68,6 +80,10 @@ func ExtractSuggestedTechnologies(response string) []string {
 		line = strings.TrimSpace(line)
 		if strings.Contains(line, "Suggested Technologies") {
 			suggestedTechnologiesPart = true
+			trimmed := strings.TrimSpace(strings.Trim(strings.SplitN(line, ":", 2)[1], "*"))
+			if trimmed != "" {
+				suggestedTechnologies = append(suggestedTechnologies, trimmed)
+			}
 			continue
 		}
 		if suggestedTechnologiesPart {
