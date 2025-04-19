@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/snowmerak/hasu/internal/document"
@@ -24,15 +25,15 @@ func main() {
 	}
 
 	cli, err := ollama.New(ollama.Config{
-		Model: ollama.ModelGemma3p12B,
+		Model: ollama.ModelGemma3p27B,
 	})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Print("Enter your package description: ")
-	var userInput string = "로그를 MQ, Rest API로 전송해야해. 필요한 인터페이스 패키지와 kafka, nats, http client에 대한 패키지가 필요해."
-	//fmt.Scanln(&userInput)
+	var userInput string
+	fmt.Scanln(&userInput)
 	prompt := prompts.GetGoPackageGenerationPrompt(userInput)
 
 	resp, err := cli.Generate(ctx, prompt)
@@ -45,6 +46,12 @@ func main() {
 	// Extract suggested technologies
 	suggestedTechnologies := prompts.ExtractSuggestedTechnologies(resp)
 	for _, tech := range suggestedTechnologies {
+		tech = strings.ReplaceAll(tech, "\"", "")
+		tech = strings.ReplaceAll(tech, "'", "")
+		tech = strings.ReplaceAll(tech, "`", "")
+		tech = strings.ReplaceAll(tech, "*", "")
+		log.Printf("Searching for libraries related to technology: %s", tech)
+
 		sr, err := meilisearch.Search[document.Library](mc, document.IndexNameLibraries, tech, meilisearch.SearchOption{
 			Limit:  5,
 			Offset: 0,
@@ -59,6 +66,7 @@ func main() {
 			continue
 		}
 
+		fmt.Printf("Libraries related to technology '%s':\n", tech)
 		for _, lib := range sr.Hits {
 			fmt.Printf("Library ID: %s, Name: %s, URL: %s, Tags: %v, Description: %s\n", lib.ID, lib.Name, lib.URL, lib.Tags, lib.Description)
 		}
