@@ -929,4 +929,25 @@ var libraryList = []Library{
 		Tags:        []string{"PostgreSQL", "golang", "geometry", "geospatial", "database"},
 		Description: "A Go library for working with PostGIS geometries in PostgreSQL. It provides a simple API for encoding and decoding geometries, making it easy to build applications that require geospatial data storage and processing.",
 	},
+	{
+		ID:          "134",
+		Name:        "jackc/puddle/v2",
+		URL:         "github.com/jackc/puddle/v2",
+		Tags:        []string{"pool", "golang", "connection", "performance", "resource management", "concurrency"},
+		Description: "A Go library for managing pools of resources, such as database connections or network sockets. It provides a simple API for acquiring and releasing resources, making it easy to build applications that require efficient resource management in concurrent environments.",
+	},
+	{
+		ID:          "135",
+		Name:        "allegro/bigcache",
+		URL:         "github.com/allegro/bigcache/v3",
+		Tags:        []string{"cache", "golang", "memory", "performance", "LRU"},
+		Description: "BigCache is a Go library for managing large in-memory caches. It is designed for high performance and low memory usage, making it ideal for applications that require fast access to cached data. BigCache uses a combination of LRU (Least Recently Used) eviction policy and memory pooling to optimize cache performance.",
+	},
+	{
+		ID:          "136",
+		Name:        "junegunn/fzf",
+		URL:         "github.com/junegunn/fzf",
+		Tags:        []string{"fuzzy finder", "golang", "CLI", "terminal", "TUI"},
+		Description: "fzf is a command-line fuzzy finder written in Go. It provides a simple and efficient way to search and filter text data in the terminal, making it easy to build interactive command-line applications. fzf supports various features like multi-select, preview, and custom sorting, making it a powerful tool for working with text data in the terminal.",
+	},
 }
