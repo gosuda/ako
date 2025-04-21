@@ -1,7 +1,13 @@
 package main
 
+import (
+	"context"
+	"log"
+	"os"
+)
+
 func main() {
-	if err := createPackageTemplate(); err != nil {
-		panic(err)
+	if err := rootCmd.Run(context.Background(), os.Args); err != nil {
+		log.Fatal(err)
 	}
 }
