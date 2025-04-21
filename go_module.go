@@ -48,3 +48,15 @@ func tidyGoModule() error {
 
 	return nil
 }
+
+func getGoModuleName() (string, error) {
+	cmd := exec.Command("go", "list", "-m")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	return string(output), nil
+}
