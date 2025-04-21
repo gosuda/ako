@@ -41,6 +41,9 @@ plugins:
       - paths=source_relative`
 
 	bufCmdPackage = "github.com/bufbuild/buf/cmd/buf"
+
+	protobufDependencyPackage = "google.golang.org/protobuf"
+	grpcDependencyPackage     = "google.golang.org/grpc"
 )
 
 // createBufTemplate creates buf.yaml and buf.gen.yaml files in the current directory.
@@ -91,6 +94,14 @@ func createBufTemplate() error {
 	}
 
 	if err := getGoModuleAsTool(bufCmdPackage); err != nil {
+		return err
+	}
+
+	if err := getGoModule(protobufDependencyPackage); err != nil {
+		return err
+	}
+
+	if err := getGoModule(grpcDependencyPackage); err != nil {
 		return err
 	}
 
