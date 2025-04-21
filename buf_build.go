@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -90,6 +91,52 @@ func createBufTemplate() error {
 	}
 
 	if err := getGoModuleAsTool(bufCmdPackage); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+const protobufExample = `syntax = "proto3";
+
+option go_package = "./person";
+
+message Person {
+  string name = 1;
+  int32 age = 2;
+  string email = 3;
+}
+
+message Request {
+  string name = 1;
+}
+
+message Response {
+  string message = 1;
+}
+
+service Greeter {
+  rpc SayHello (Request) returns (Response) {}
+}`
+
+// createProtobufExample creates a protobuf example file in the proto directory.
+func createProtobufExample() error {
+	protoDir := filepath.Join("proto", "person")
+	if err := os.MkdirAll(protoDir, 0755); err != nil {
+		return err
+	}
+
+	file, err := os.Create(fmt.Sprintf("%s/person.proto", protoDir))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := file.WriteString(protobufExample); err != nil {
+		return err
+	}
+
+	if err := file.Sync(); err != nil {
 		return err
 	}
 
