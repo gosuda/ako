@@ -50,6 +50,10 @@ func New%s(ctx context.Context, lc fx.Lifecycle) *%s {
 }`
 
 func createFxFile(path string, name string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return err
+	}
+
 	packageName := filepath.Base(path)
 	file, err := os.Create(filepath.Join(path, fxFileName))
 	if err != nil {
