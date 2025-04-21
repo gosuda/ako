@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func initGoModule(moduleName string) error {
@@ -56,5 +57,5 @@ func getGoModuleName() (string, error) {
 		return "", err
 	}
 
-	return string(output), nil
+	return strings.TrimSpace(string(output)), nil
 }
