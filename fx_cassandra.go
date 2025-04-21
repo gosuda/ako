@@ -15,18 +15,37 @@ const (
 import (
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
+
+	"go.uber.org/fx"
 )
+
+// %sRegister is the fx.Provide function for the %s client.
+// It registers the client as a dependency in the fx application.
+// You can append interfaces into the fx.As() function to register multiple interfaces.
+var %sRegister = fx.Provide(New%s, fx.As())
+
+type Config gocql.ClusterConfig
 
 type %s struct {
 	clusterConfig gocql.ClusterConfig
 }
 
-func New(host ...string) *%s {
-	cfg := gocql.NewCluster(host...)
-
-	return &%s{
-		clusterConfig: *cfg,
+func New%s(lc fx.Lifecycle, cfg Config) *%s {
+	client := &%s{
+		clusterConfig: gocql.ClusterConfig(cfg),
 	}
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			// Initialize the client here if needed
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			// Clean up resources if needed
+			return nil
+		},
+	})
+
+	return client
 }
 
 func (c *%s) SetKeyspace(keyspace string) {
@@ -164,7 +183,7 @@ func createFxCassandraFile(path string, name string) error {
 	defer file.Close()
 
 	if err := func() error {
-		content := fmt.Sprintf(cassandraTemplate1, packageName, name, name, name, name, name, name, name)
+		content := fmt.Sprintf(cassandraTemplate1, packageName, name, name, name, name, name, name, name, name, name, name, name, name)
 		if _, err := file.WriteString(content); err != nil {
 			return err
 		}
