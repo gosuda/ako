@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 const (
@@ -13,25 +12,27 @@ const (
 	cassandraTemplate1          = `package %s
 
 import (
+	"context"
+
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
 
 	"go.uber.org/fx"
 )
 
-// %sRegister is the fx.Provide function for the %s client.
+// ClientRegister is the fx.Provide function for the client.
 // It registers the client as a dependency in the fx application.
 // You can append interfaces into the fx.As() function to register multiple interfaces.
-var %sRegister = fx.Provide(New%s, fx.As())
+var ClientRegister = fx.Provide(NewClient, fx.As())
 
 type Config gocql.ClusterConfig
 
-type %s struct {
+type Client struct {
 	clusterConfig gocql.ClusterConfig
 }
 
-func New%s(lc fx.Lifecycle, cfg Config) *%s {
-	client := &%s{
+func NewClient(lc fx.Lifecycle, cfg Config) *Client {
+	client := &Client{
 		clusterConfig: gocql.ClusterConfig(cfg),
 	}
 	lc.Append(fx.Hook{
@@ -48,19 +49,19 @@ func New%s(lc fx.Lifecycle, cfg Config) *%s {
 	return client
 }
 
-func (c *%s) SetKeyspace(keyspace string) {
+func (c *Client) SetKeyspace(keyspace string) {
 	c.clusterConfig.Keyspace = keyspace
 }
 
-func (c *%s) SetConfig(f func(*gocql.ClusterConfig)) {
+func (c *Client) SetConfig(f func(*gocql.ClusterConfig)) {
 	f(&c.clusterConfig)
 }
 
-func (c *%s) Connect() (*gocql.Session, error) {
+func (c *Client) Connect() (*gocql.Session, error) {
 	return c.clusterConfig.CreateSession()
 }
 
-func (c *%s) ConnectX() (gocqlx.Session, error) {
+func (c *Client) ConnectX() (gocqlx.Session, error) {
 	session, err := gocqlx.WrapSession(c.clusterConfig.CreateSession())
 	if err != nil {
 		return session, err
@@ -101,7 +102,7 @@ type SampleTable struct {
 
 var sampleTableSelectStmt, sampleTableSelectNames = sampleTable.Select()
 
-func (c *%s) Select(column1, column2 string) (*SampleTable, error) {
+func (c *Client) Select(column1, column2 string) (*SampleTable, error) {
 	sess, err := c.ConnectX()
 	if err != nil {
 		return nil, err
@@ -120,7 +121,7 @@ func (c *%s) Select(column1, column2 string) (*SampleTable, error) {
 
 var sampleTableInsertStmt, sampleTableInsertNames = sampleTable.Insert()
 
-func (c *%s) Insert(data *SampleTable) error {
+func (c *Client) Insert(data *SampleTable) error {
 	sess, err := c.ConnectX()
 	if err != nil {
 		return err
@@ -135,7 +136,7 @@ func (c *%s) Insert(data *SampleTable) error {
 
 var sampleTableUpdateStmt, sampleTableUpdateNames = sampleTable.Update()
 
-func (c *%s) Update(data *SampleTable) error {
+func (c *Client) Update(data *SampleTable) error {
 	sess, err := c.ConnectX()
 	if err != nil {
 		return err
@@ -150,7 +151,7 @@ func (c *%s) Update(data *SampleTable) error {
 
 var sampleTableDeleteStmt, sampleTableDeleteNames = sampleTable.Delete()
 
-func (c *%s) Delete(column1, column2 string) error {
+func (c *Client) Delete(column1, column2 string) error {
 	sess, err := c.ConnectX()
 	if err != nil {
 		return err
@@ -172,7 +173,6 @@ func createFxCassandraFile(path string, name string) error {
 		return err
 	}
 
-	name = strings.ToUpper(name[:1]) + name[1:]
 	packageName := filepath.Base(path)
 
 	fileName := filepath.Join(path, fmt.Sprintf(fxFileName, name))
@@ -183,7 +183,7 @@ func createFxCassandraFile(path string, name string) error {
 	defer file.Close()
 
 	if err := func() error {
-		content := fmt.Sprintf(cassandraTemplate1, packageName, name, name, name, name, name, name, name, name, name, name, name, name)
+		content := fmt.Sprintf(cassandraTemplate1, packageName)
 		if _, err := file.WriteString(content); err != nil {
 			return err
 		}
@@ -205,7 +205,7 @@ func createFxCassandraFile(path string, name string) error {
 		}
 		defer file.Close()
 
-		content := fmt.Sprintf(cassandraTemplate2, packageName, name, name, name, name)
+		content := fmt.Sprintf(cassandraTemplate2, packageName)
 		if _, err := file.WriteString(content); err != nil {
 			return err
 		}
