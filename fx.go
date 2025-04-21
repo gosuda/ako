@@ -74,3 +74,41 @@ func createFxFile(path string, name string) error {
 
 	return nil
 }
+
+const (
+	fxExecutableFileName     = "main.go"
+	fxExecutableFileTemplate = `package main
+
+import (
+	"time"
+
+	"go.uber.org/fx"
+)
+
+func main() {
+	fx.New(fx.StartTimeout(15*time.Second),
+		fx.StopTimeout(15*time.Second)).Run()
+}`
+)
+
+func createFxExecutableFile(path string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return err
+	}
+
+	file, err := os.Create(filepath.Join(path, fxExecutableFileName))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := fmt.Fprintf(file, fxExecutableFileTemplate); err != nil {
+		return err
+	}
+
+	if err := file.Sync(); err != nil {
+		return err
+	}
+
+	return nil
+}

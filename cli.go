@@ -64,7 +64,7 @@ var rootCmd = &cli.Command{
 				{
 					Name:      "plain",
 					Usage:     "Generate empty client",
-					Arguments: pkgGenerateArguments,
+					Arguments: pkgGeneratePlainArguments,
 					Action: func(ctx context.Context, command *cli.Command) error {
 						path, name, err := getPkgGenerateArguments(ctx, command)
 						if err != nil {
@@ -78,18 +78,38 @@ var rootCmd = &cli.Command{
 						return nil
 					},
 				},
+				{
+					Name:      "cassandra",
+					Usage:     "Generate cassandra client",
+					Arguments: pkgGenerateArguments,
+					Action: func(ctx context.Context, command *cli.Command) error {
+						name, ok := command.Arguments[0].Get().(string)
+						if !ok {
+							return cli.Exit("Invalid name", 1)
+						}
+
+						if err := createFxCassandraFile(makePackagePath(packagePersistence, "cassandra", name), name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
 			},
 		},
 	},
 }
 
-var pkgGenerateArguments = []cli.Argument{
+var pkgGeneratePlainArguments = append([]cli.Argument{
 	&cli.StringArg{
 		Name:      "path",
 		Value:     "client/http",
 		UsageText: "The path to the package to create [relative to the pkg folder, e.g. client/http]",
 		Config:    cli.StringConfig{TrimSpace: true},
 	},
+}, pkgGenerateArguments...)
+
+var pkgGenerateArguments = []cli.Argument{
 	&cli.StringArg{
 		Name:      "name",
 		Value:     "client",
