@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/urfave/cli/v3"
 )
@@ -62,8 +63,8 @@ var rootCmd = &cli.Command{
 			Arguments: []cli.Argument{
 				&cli.StringArg{
 					Name:      "path",
-					Value:     "pkg/client/http",
-					UsageText: "The path to the package to create [relative to the module root, e.g. pkg/client/http]",
+					Value:     "client/http",
+					UsageText: "The path to the package to create [relative to the pkg folder, e.g. client/http]",
 					Config:    cli.StringConfig{TrimSpace: true},
 				},
 				&cli.StringArg{
@@ -82,6 +83,7 @@ var rootCmd = &cli.Command{
 				if !ok {
 					return cli.Exit("Invalid path", 1)
 				}
+				path = filepath.Join("pkg", path)
 
 				name, ok := command.Arguments[1].Get().(string)
 				if !ok {
