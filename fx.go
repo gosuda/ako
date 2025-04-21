@@ -32,6 +32,9 @@ import (
 	"go.uber.org/fx"
 )
 
+// %sRegister is the fx.Provide function for the %s client.
+// It registers the client as a dependency in the fx application.
+// You can append interfaces into the fx.As() function to register multiple interfaces.
 var %sRegister = fx.Provide(New%s, fx.As())
 
 type %s struct {
