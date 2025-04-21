@@ -32,11 +32,11 @@ managed:
       file_option: go_package_prefix
 plugins:
   - remote: buf.build/grpc/go:v1.4.0
-    out: gen
+    out: lib/gen
     opt:
       - paths=source_relative
   - remote: buf.build/protocolbuffers/go
-    out: gen
+    out: lib/gen
     opt:
       - paths=source_relative`
 
