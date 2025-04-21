@@ -9,7 +9,7 @@ import (
 const (
 	cassandraDependencyPackage1 = "github.com/gocql/gocql"
 	cassandraDependencyPackage2 = "github.com/scylladb/gocqlx/v2"
-	cassandraTemplate1          = `package %s
+	cassandraTemplate1          = `package {{.package_name}}
 
 import (
 	"context"
@@ -69,7 +69,7 @@ func (c *Client) ConnectX() (gocqlx.Session, error) {
 	return session, nil
 }`
 
-	cassandraTemplate2 = `package %s
+	cassandraTemplate2 = `package {{.package_name}}
 
 import "github.com/scylladb/gocqlx/v2/table"
 
@@ -176,46 +176,15 @@ func createFxCassandraFile(path string, name string) error {
 	packageName := filepath.Base(path)
 
 	fileName := filepath.Join(path, fmt.Sprintf(fxFileName, name))
-	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	if err := func() error {
-		content := fmt.Sprintf(cassandraTemplate1, packageName)
-		if _, err := file.WriteString(content); err != nil {
-			return err
-		}
-
-		if err := file.Sync(); err != nil {
-			return err
-		}
-
-		return nil
-	}(); err != nil {
+	if err := writeTemplate2File(fileName, cassandraTemplate1, map[string]any{
+		"package_name": packageName,
+	}); err != nil {
 		return err
 	}
 
-	if err := func() error {
-		fileName = filepath.Join(path, "table.go")
-		file, err = os.Create(fileName)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		content := fmt.Sprintf(cassandraTemplate2, packageName)
-		if _, err := file.WriteString(content); err != nil {
-			return err
-		}
-
-		if err := file.Sync(); err != nil {
-			return err
-		}
-
-		return nil
-	}(); err != nil {
+	if err := writeTemplate2File(filepath.Join(path, "query.go"), cassandraTemplate2, map[string]any{
+		"package_name": packageName,
+	}); err != nil {
 		return err
 	}
 
