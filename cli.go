@@ -48,6 +48,10 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := getFxDependency(); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
