@@ -55,5 +55,45 @@ var rootCmd = &cli.Command{
 				return nil
 			},
 		},
+		{
+			Name:    "pkg",
+			Aliases: []string{"p"},
+			Usage:   "Generate new package",
+			Arguments: []cli.Argument{
+				&cli.StringArg{
+					Name:      "path",
+					Value:     "pkg/client/http",
+					UsageText: "The path to the package to create [relative to the module root, e.g. pkg/client/http]",
+					Config:    cli.StringConfig{TrimSpace: true},
+				},
+				&cli.StringArg{
+					Name:      "name",
+					Value:     "client",
+					UsageText: "The name of the struct to create [e.g. client]",
+					Config:    cli.StringConfig{TrimSpace: true},
+				},
+			},
+			Action: func(ctx context.Context, command *cli.Command) error {
+				if len(command.Arguments) < 2 {
+					return cli.Exit("Path and name are required", 1)
+				}
+
+				path, ok := command.Arguments[0].Get().(string)
+				if !ok {
+					return cli.Exit("Invalid path", 1)
+				}
+
+				name, ok := command.Arguments[1].Get().(string)
+				if !ok {
+					return cli.Exit("Invalid name", 1)
+				}
+
+				if err := createFxFile(path, name); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
+			},
+		},
 	},
 }
