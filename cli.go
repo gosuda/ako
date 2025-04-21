@@ -60,42 +60,59 @@ var rootCmd = &cli.Command{
 			Name:    "pkg",
 			Aliases: []string{"p"},
 			Usage:   "Generate new package",
-			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name:      "path",
-					Value:     "client/http",
-					UsageText: "The path to the package to create [relative to the pkg folder, e.g. client/http]",
-					Config:    cli.StringConfig{TrimSpace: true},
+			Commands: []*cli.Command{
+				{
+					Name:      "plain",
+					Usage:     "Generate empty client",
+					Arguments: pkgGenerateArguments,
+					Action: func(ctx context.Context, command *cli.Command) error {
+						path, name, err := getPkgGenerateArguments(ctx, command)
+						if err != nil {
+							return err
+						}
+
+						if err := createFxFile(path, name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
 				},
-				&cli.StringArg{
-					Name:      "name",
-					Value:     "client",
-					UsageText: "The name of the struct to create [e.g. client]",
-					Config:    cli.StringConfig{TrimSpace: true},
-				},
-			},
-			Action: func(ctx context.Context, command *cli.Command) error {
-				if len(command.Arguments) < 2 {
-					return cli.Exit("Path and name are required", 1)
-				}
-
-				path, ok := command.Arguments[0].Get().(string)
-				if !ok {
-					return cli.Exit("Invalid path", 1)
-				}
-				path = filepath.Join("pkg", path)
-
-				name, ok := command.Arguments[1].Get().(string)
-				if !ok {
-					return cli.Exit("Invalid name", 1)
-				}
-
-				if err := createFxFile(path, name); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
-
-				return nil
 			},
 		},
 	},
+}
+
+var pkgGenerateArguments = []cli.Argument{
+	&cli.StringArg{
+		Name:      "path",
+		Value:     "client/http",
+		UsageText: "The path to the package to create [relative to the pkg folder, e.g. client/http]",
+		Config:    cli.StringConfig{TrimSpace: true},
+	},
+	&cli.StringArg{
+		Name:      "name",
+		Value:     "client",
+		UsageText: "The name of the struct to create [e.g. client]",
+		Config:    cli.StringConfig{TrimSpace: true},
+	},
+}
+
+func getPkgGenerateArguments(ctx context.Context, command *cli.Command) (string, string, error) {
+	if len(command.Arguments) < 2 {
+		return "", "", cli.Exit("Path and name are required", 1)
+	}
+
+	path, ok := command.Arguments[0].Get().(string)
+	if !ok {
+		return "", "", cli.Exit("Invalid path", 1)
+	}
+	path = filepath.Join("pkg", path)
+
+	name, ok := command.Arguments[1].Get().(string)
+	if !ok {
+		return "", "", cli.Exit("Invalid name", 1)
+	}
+
+	return path, name, nil
 }
