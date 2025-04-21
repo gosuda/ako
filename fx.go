@@ -68,7 +68,7 @@ func createFxFile(path string, name string) error {
 
 	name = strings.ToUpper(name[:1]) + name[1:]
 
-	if _, err := fmt.Fprintf(file, fxFileTemplate, packageName, name, name, name, name, name, name); err != nil {
+	if _, err := fmt.Fprintf(file, fxFileTemplate, packageName, name, name, name, name, name, name, name, name); err != nil {
 		return err
 	}
 
