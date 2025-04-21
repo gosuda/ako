@@ -10,7 +10,7 @@ import (
 const (
 	cassandraDependencyPackage1 = "github.com/gocql/gocql"
 	cassandraDependencyPackage2 = "github.com/scylladb/gocqlx/v2"
-	cassandraTemplate           = `package cassandra
+	cassandraTemplate1          = `package %s
 
 import (
 	"github.com/gocql/gocql"
@@ -48,6 +48,104 @@ func (c *%s) ConnectX() (gocqlx.Session, error) {
 	}
 	return session, nil
 }`
+
+	cassandraTemplate2 = `package %s
+
+import "github.com/scylladb/gocqlx/v2/table"
+
+var sampleTableMetadata = table.Metadata{
+	Name: "sample_table",
+	Columns: []string{
+		"column1",
+		"column2",
+		"column3",
+	},
+	PartKey: []string{"column1"},
+	SortKey: []string{"column2"},
+}
+
+var sampleTable = table.New(sampleTableMetadata)
+
+var sampleTableDdl = ` + "`" + `CREATE TABLE IF NOT EXISTS sample_table (
+column1 text,
+column2 text,
+column3 text,
+PRIMARY KEY (column1, column2)
+) WITH CLUSTERING ORDER BY (column2 ASC);
+` + "`" + `
+
+type SampleTable struct {
+	Column1 string
+	Column2 string
+	Column3 string
+}
+
+var sampleTableSelectStmt, sampleTableSelectNames = sampleTable.Select()
+
+func (c *%s) Select(column1, column2 string) (*SampleTable, error) {
+	sess, err := c.ConnectX()
+	if err != nil {
+		return nil, err
+	}
+
+	var result SampleTable
+	if err := sess.Query(sampleTableSelectStmt, sampleTableSelectNames).BindMap(map[string]any{
+		"column1": column1,
+		"column2": column2,
+	}).SelectRelease(&result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+var sampleTableInsertStmt, sampleTableInsertNames = sampleTable.Insert()
+
+func (c *%s) Insert(data *SampleTable) error {
+	sess, err := c.ConnectX()
+	if err != nil {
+		return err
+	}
+
+	if err := sess.Query(sampleTableInsertStmt, sampleTableInsertNames).BindStruct(data).ExecRelease(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var sampleTableUpdateStmt, sampleTableUpdateNames = sampleTable.Update()
+
+func (c *%s) Update(data *SampleTable) error {
+	sess, err := c.ConnectX()
+	if err != nil {
+		return err
+	}
+
+	if err := sess.Query(sampleTableUpdateStmt, sampleTableUpdateNames).BindStruct(data).ExecRelease(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var sampleTableDeleteStmt, sampleTableDeleteNames = sampleTable.Delete()
+
+func (c *%s) Delete(column1, column2 string) error {
+	sess, err := c.ConnectX()
+	if err != nil {
+		return err
+	}
+
+	if err := sess.Query(sampleTableDeleteStmt, sampleTableDeleteNames).BindMap(map[string]any{
+		"column1": column1,
+		"column2": column2,
+	}).ExecRelease(); err != nil {
+		return err
+	}
+
+	return nil
+}`
 )
 
 func createFxCassandraFile(path string, name string) error {
@@ -56,6 +154,7 @@ func createFxCassandraFile(path string, name string) error {
 	}
 
 	name = strings.ToUpper(name[:1]) + name[1:]
+	packageName := filepath.Base(path)
 
 	fileName := filepath.Join(path, fmt.Sprintf(fxFileName, name))
 	file, err := os.Create(fileName)
@@ -64,12 +163,40 @@ func createFxCassandraFile(path string, name string) error {
 	}
 	defer file.Close()
 
-	content := fmt.Sprintf(cassandraTemplate, name, name, name, name, name, name, name)
-	if _, err := file.WriteString(content); err != nil {
+	if err := func() error {
+		content := fmt.Sprintf(cassandraTemplate1, packageName, name, name, name, name, name, name, name)
+		if _, err := file.WriteString(content); err != nil {
+			return err
+		}
+
+		if err := file.Sync(); err != nil {
+			return err
+		}
+
+		return nil
+	}(); err != nil {
 		return err
 	}
 
-	if err := file.Sync(); err != nil {
+	if err := func() error {
+		fileName = filepath.Join(path, "table.go")
+		file, err = os.Create(fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		content := fmt.Sprintf(cassandraTemplate2, packageName, name, name, name, name)
+		if _, err := file.WriteString(content); err != nil {
+			return err
+		}
+
+		if err := file.Sync(); err != nil {
+			return err
+		}
+
+		return nil
+	}(); err != nil {
 		return err
 	}
 
