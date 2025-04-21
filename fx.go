@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	fxFileName          = "init.go"
+	fxFileName          = "init_%s.go"
 	fxDependencyPackage = "go.uber.org/fx"
 )
 
@@ -59,14 +59,14 @@ func createFxFile(path string, name string) error {
 		return err
 	}
 
+	name = strings.ToUpper(name[:1]) + name[1:]
+
 	packageName := filepath.Base(path)
-	file, err := os.Create(filepath.Join(path, fxFileName))
+	file, err := os.Create(filepath.Join(path, fmt.Sprintf(fxFileName, name)))
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
-	name = strings.ToUpper(name[:1]) + name[1:]
 
 	if _, err := fmt.Fprintf(file, fxFileTemplate, packageName, name, name, name, name, name, name, name, name); err != nil {
 		return err
