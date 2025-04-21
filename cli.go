@@ -95,6 +95,23 @@ var rootCmd = &cli.Command{
 						return nil
 					},
 				},
+				{
+					Name:      "clickhouse",
+					Usage:     "Generate clickhouse client",
+					Arguments: pkgGenerateArguments,
+					Action: func(ctx context.Context, command *cli.Command) error {
+						name, ok := command.Arguments[0].Get().(string)
+						if !ok {
+							return cli.Exit("Invalid name", 1)
+						}
+
+						if err := createClickhouseFile(makePackagePath(packagePersistence, "clickhouse", name), name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
 			},
 		},
 	},
