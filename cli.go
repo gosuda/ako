@@ -74,6 +74,25 @@ var rootCmd = &cli.Command{
 			Description: "Scaffolds the core abstraction layer (lib/) of your Go project.\n   This layer contains interface definitions, shared data structures (DTOs, VOs, Entities),\n   and domain models, free of concrete implementations. It establishes the contracts\n   and core concepts for other layers (internal, pkg) to depend on.",
 			Aliases:     []string{"l"},
 			Action: func(ctx context.Context, command *cli.Command) error {
+				base, err := selectLibraryBase()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				packageName, err := inputLibraryPackage()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				name, err := inputLibraryName()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				path := makeLibraryPath(base, packageName)
+				if err := createFxInterfaceFile(path, name); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
 				return nil
 			},
@@ -94,7 +113,7 @@ var rootCmd = &cli.Command{
 							return err
 						}
 
-						if err := createFxFile(path, name); err != nil {
+						if err := createFxStructFile(path, name); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
