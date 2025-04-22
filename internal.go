@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	internalPackageController = "internal/controller"
-	internalPackageService    = "internal/service"
+	internalPackageController = "controller"
+	internalPackageService    = "service"
 )
 
 func selectInternalPackageBase() (string, error) {
