@@ -57,9 +57,32 @@ var rootCmd = &cli.Command{
 			},
 		},
 		{
-			Name:    "pkg",
-			Aliases: []string{"p"},
-			Usage:   "Generate new package",
+			Name:    "buf",
+			Aliases: []string{"f"},
+			Usage:   "Generate protobuf files using buf",
+			Action: func(ctx context.Context, command *cli.Command) error {
+				if err := runGoModuleTool("buf", "generate"); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
+			},
+		},
+		{
+			Name:        "lib",
+			Usage:       "Generate core abstraction layer (in lib/)",
+			Description: "Scaffolds the core abstraction layer (lib/) of your Go project.\n   This layer contains interface definitions, shared data structures (DTOs, VOs, Entities),\n   and domain models, free of concrete implementations. It establishes the contracts\n   and core concepts for other layers (internal, pkg) to depend on.",
+			Aliases:     []string{"l"},
+			Action: func(ctx context.Context, command *cli.Command) error {
+
+				return nil
+			},
+		},
+		{
+			Name:        "pkg",
+			Aliases:     []string{"p"},
+			Usage:       "Generate new package implementation (in pkg/)",
+			Description: "Generates a new package within the pkg/ directory. This layer contains\n   the concrete implementations of interfaces defined in the lib/ layer. Packages\n   within pkg/ are typically organized based on the specific technology or external\n   dependency they integrate with (e.g., postgres, redis, zerolog, stripe).\n   This command helps scaffold the necessary directory structure and boilerplate\n   files for the implementation.",
 			Commands: []*cli.Command{
 				{
 					Name:      "plain",
