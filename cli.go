@@ -102,73 +102,54 @@ var rootCmd = &cli.Command{
 			Aliases:     []string{"p"},
 			Usage:       "Generate new package implementation (in pkg/)",
 			Description: "Generates a new package within the pkg/ directory. This layer contains\n   the concrete implementations of interfaces defined in the lib/ layer. Packages\n   within pkg/ are typically organized based on the specific technology or external\n   dependency they integrate with (e.g., postgres, redis, zerolog, stripe).\n   This command helps scaffold the necessary directory structure and boilerplate\n   files for the implementation.",
-			Commands: []*cli.Command{
-				{
-					Name:      "plain",
-					Usage:     "Generate empty client",
-					Arguments: pkgGeneratePlainArguments,
-					Action: func(ctx context.Context, command *cli.Command) error {
-						path, name, err := getPkgGenerateArguments(ctx, command)
-						if err != nil {
-							return err
-						}
+			Action: func(ctx context.Context, command *cli.Command) error {
+				base, err := inputPackageBase()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
-						if err := createFxStructFile(path, name); err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
+				category, err := inputPackageCategory()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
-						return nil
-					},
-				},
-				{
-					Name:      "cassandra",
-					Usage:     "Generate cassandra client",
-					Arguments: pkgGenerateArguments,
-					Action: func(ctx context.Context, command *cli.Command) error {
-						name, ok := command.Arguments[0].Get().(string)
-						if !ok {
-							return cli.Exit("Invalid name", 1)
-						}
+				packageName, err := inputPackageName()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
-						if err := createFxCassandraFile(makePackagePath(packagePersistence, "cassandra", name), name); err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
+				templateKey, err := selectFxPkgTemplateKey()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
-						return nil
-					},
-				},
-				{
-					Name:      "clickhouse",
-					Usage:     "Generate clickhouse client",
-					Arguments: pkgGenerateArguments,
-					Action: func(ctx context.Context, command *cli.Command) error {
-						name, ok := command.Arguments[0].Get().(string)
-						if !ok {
-							return cli.Exit("Invalid name", 1)
-						}
+				templateWriter, err := getPkgTemplateWriter(templateKey)
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
 
-						if err := createClickhouseFile(makePackagePath(packagePersistence, "clickhouse", name), name); err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
+				path := makePackagePath(base, category, packageName)
 
-						return nil
-					},
-				},
+				if err := templateWriter(path, packageName); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
 			},
 		},
 	},
 }
 
-var pkgGeneratePlainArguments = append([]cli.Argument{
+var pkgGenerateArguments = append([]cli.Argument{
 	&cli.StringArg{
 		Name:      "path",
 		Value:     "client/http",
 		UsageText: "The path to the package to create [relative to the pkg folder, e.g. client/http]",
 		Config:    cli.StringConfig{TrimSpace: true},
 	},
-}, pkgGenerateArguments...)
+}, pkgGenerateSpecificArguments...)
 
-var pkgGenerateArguments = []cli.Argument{
+var pkgGenerateSpecificArguments = []cli.Argument{
 	&cli.StringArg{
 		Name:      "name",
 		Value:     "client",
