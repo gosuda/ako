@@ -15,20 +15,29 @@ const (
 	libDomain      = "domain"
 )
 
-func makeLibraryPath(base string, category string) string {
-	return filepath.Join("lib", base, category)
+func makeLibraryPath(base string, category string, name string) string {
+	return filepath.Join("lib", base, category, name)
 }
 
 func selectLibraryBase() (string, error) {
-	candidates := []string{
+	suggestions := []string{
 		libraryAdapter + ": Defines interfaces abstracting communication with external systems (APIs, message queues, etc.).",
 		libRepository + ": Defines interfaces for accessing the data persistence layer (DB, cache, etc.).",
 		libDomain + ": Defines core business logic, rules, domain models, and domain service interfaces.",
 	}
 	var base string
-	if err := survey.AskOne(&survey.Select{
+	if err := survey.AskOne(&survey.Input{
 		Message: "Select the library category:",
-		Options: candidates,
+		Suggest: func(toComplete string) []string {
+			result := make([]string, 0, len(suggestions))
+			for _, candidate := range suggestions {
+				if strings.Contains(strings.ToLower(candidate), strings.ToLower(toComplete)) {
+					result = append(result, candidate)
+				}
+			}
+
+			return result
+		},
 	}, &base, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
 	}
@@ -36,11 +45,23 @@ func selectLibraryBase() (string, error) {
 	sp := strings.Split(base, ":")
 	base = strings.TrimSpace(sp[0])
 
-	if base != libraryAdapter && base != libRepository && base != libDomain {
-		return "", fmt.Errorf("invalid library base: %s", base)
+	return base, nil
+}
+
+func inputLibraryCategory() (string, error) {
+	var category string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the library category [lib/<base>/<category>/<package>]:",
+	}, &category, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
 	}
 
-	return base, nil
+	category = strings.TrimSpace(category)
+	if category == "" {
+		return "", fmt.Errorf("invalid library category: %s", category)
+	}
+
+	return category, nil
 }
 
 func inputLibraryPackage() (string, error) {

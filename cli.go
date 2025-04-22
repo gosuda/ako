@@ -79,6 +79,11 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				category, err := inputLibraryCategory()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				packageName, err := inputLibraryPackage()
 				if err != nil {
 					return cli.Exit(err.Error(), 1)
@@ -89,7 +94,7 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
-				path := makeLibraryPath(base, packageName)
+				path := makeLibraryPath(base, category, packageName)
 				if err := createLibraryFile(path, name); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
