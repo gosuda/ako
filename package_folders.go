@@ -28,7 +28,7 @@ func inputPackageBase() (string, error) {
 	}
 	var base string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the package base name [pkg/<base>/<category>/<package>]:",
+		Message: "Enter the package base [pkg/<base>/<category>/<package>]:",
 		Suggest: func(toComplete string) []string {
 			result := make([]string, 0, len(suggestions))
 			for _, candidate := range suggestions {
@@ -52,7 +52,7 @@ func inputPackageBase() (string, error) {
 func inputPackageCategory() (string, error) {
 	var category string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the package category name [pkg/<base>/<category>/<package>]:",
+		Message: "Enter the package category [pkg/<base>/<category>/<package>]:",
 	}, &category, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
 	}
