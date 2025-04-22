@@ -142,6 +142,34 @@ var rootCmd = &cli.Command{
 				return nil
 			},
 		},
+		{
+			Name:        "internal",
+			Aliases:     []string{"n"},
+			Usage:       "Generate new internal implementation (in internal/)",
+			Description: "Scaffolds the business logic layer within the internal/ directory. This layer\n   typically contains 'controller' packages for handling requests/responses and 'service'\n   packages for orchestrating core business logic and use cases. It primarily depends\n   on the abstractions defined in lib/. Go's 'internal' visibility rules apply.\n   This command helps set up the structure for controllers and services for a given domain.",
+			Action: func(ctx context.Context, command *cli.Command) error {
+				base, err := selectInternalPackageBase()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				category, err := inputInternalPackageCategory()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				packageName, err := inputInternalPackageName()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := createInternalPackage(base, category, packageName); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
+			},
+		},
 	},
 }
 
