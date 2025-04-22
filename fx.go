@@ -60,16 +60,7 @@ func New{{.client_name}}(ctx context.Context, lc fx.Lifecycle, param {{.client_n
 
 const fxInterfaceFileTemplate = `package {{.package_name}}
 
-import (
-	"context"
-
-	"go.uber.org/fx"
-)
-
 type {{.client_name}} interface {
-}
-
-type {{.client_name}}Data struct {
 }`
 
 func createFxStructFile(path string, name string) error {
