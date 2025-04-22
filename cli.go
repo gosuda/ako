@@ -90,7 +90,7 @@ var rootCmd = &cli.Command{
 				}
 
 				path := makeLibraryPath(base, packageName)
-				if err := createFxInterfaceFile(path, name); err != nil {
+				if err := createLibraryFile(path, name); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
 
