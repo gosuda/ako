@@ -62,7 +62,7 @@ func inputLibraryPackage() (string, error) {
 func inputLibraryName() (string, error) {
 	var name string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the library name:",
+		Message: "Enter the library interface name:",
 	}, &name, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
 	}
