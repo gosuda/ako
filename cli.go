@@ -53,6 +53,10 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := generateDevContainerFile(filepath.Base(moduleName)); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
