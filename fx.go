@@ -32,19 +32,19 @@ import (
 	"go.uber.org/fx"
 )
 
-// {{.client_name}}Register is the fx.Provide function for the {{.client_name}} client.
+// Register is the fx.Provide function for the client.
 // It registers the client as a dependency in the fx application.
 // You can append interfaces into the fx.As() function to register multiple interfaces.
-var {{.client_name}}Register = fx.Provide(New{{.client_name}}, fx.As())
+var Register = fx.Provide(New, fx.As())
 
-type {{.client_name}}Param struct {
+type Param struct {
 	fx.In
 }
 
 type {{.client_name}} struct {
 }
 
-func New{{.client_name}}(ctx context.Context, lc fx.Lifecycle, param {{.client_name}}Param) *{{.client_name}} {
+func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			// Initialize the client here if needed
