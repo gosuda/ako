@@ -69,7 +69,15 @@ CMD ["/bin/sh", "-c", "while true; do sleep 30; done;"]
 	],
 	"service": "{{.name}}",
 	"workspaceFolder": "/workspace",
-	"shutdownAction": "stopCompose"
+	"shutdownAction": "stopCompose",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"golang.go"
+			]
+		}
+	}
 }`
 
 	path = filepath.Join(".devcontainer", "devcontainer.json")
