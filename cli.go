@@ -170,6 +170,30 @@ var rootCmd = &cli.Command{
 				return nil
 			},
 		},
+		{
+			Name:        "cmd",
+			Aliases:     []string{"c"},
+			Usage:       "Generate new command implementation (in cmd/)",
+			Description: "Creates and manages the application's execution entry point (main package).\n   Its main role is to load configuration, assemble (wire) components\n   from other layers (pkg, internal) via dependency injection, and finally\n   run the application (e.g., HTTP server, worker).\n   Does not contain business logic.",
+			Action: func(ctx context.Context, command *cli.Command) error {
+				name, err := inputCmdName()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				dir := filepath.Join("cmd", name)
+
+				if err := createFxExecutableFile(dir); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := generateGoImageFile(name); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
+			},
+		},
 	},
 }
 
