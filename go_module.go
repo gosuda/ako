@@ -59,3 +59,18 @@ func getGoModuleName() (string, error) {
 
 	return strings.TrimSpace(string(output)), nil
 }
+
+func runGoModuleTool(item string, command ...string) error {
+	args := make([]string, 0, len(command)+2)
+	args = append(args, "tool")
+	args = append(args, item)
+	args = append(args, command...)
+	cmd := exec.Command("go", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}

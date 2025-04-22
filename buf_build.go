@@ -26,17 +26,17 @@ managed:
     - file_option: go_package_prefix
       # <module_name>   : name in go.mod
       # <relative_path> : where generated code should be output
-      value: "%s/lib/gen"
+      value: "{{.module_name}}/lib/gen"
   disable:
     - module: buf.build/googleapis/googleapis
       file_option: go_package_prefix
 plugins:
   - remote: buf.build/grpc/go:v1.4.0
-    out: lib/gen
+    out: lib/adapter/gen
     opt:
       - paths=source_relative
   - remote: buf.build/protocolbuffers/go
-    out: lib/gen
+    out: lib/adapter/gen
     opt:
       - paths=source_relative`
 
@@ -73,23 +73,9 @@ func createBufTemplate() error {
 		return err
 	}
 
-	if err := func() error {
-		file, err := os.Create(bufGenFileName)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		if _, err := fmt.Fprintf(file, bufGenFileTemplate, moduleName); err != nil {
-			return err
-		}
-
-		if err := file.Sync(); err != nil {
-			return err
-		}
-
-		return nil
-	}(); err != nil {
+	if err := writeTemplate2File(bufGenFileName, bufGenFileTemplate, map[string]any{
+		"module_name": moduleName,
+	}); err != nil {
 		return err
 	}
 
