@@ -67,6 +67,9 @@ import (
 )
 
 type {{.client_name}} interface {
+}
+
+type {{.client_name}}Data struct {
 }`
 
 func createFxStructFile(path string, name string) error {
