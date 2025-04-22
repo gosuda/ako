@@ -24,7 +24,7 @@ func getFxDependency() error {
 	return nil
 }
 
-const fxFileTemplate = `package {{.package_name}}
+const fxStructFileTemplate = `package {{.package_name}}
 
 import (
 	"context"
@@ -35,7 +35,7 @@ import (
 // {{.client_name}}Register is the fx.Provide function for the {{.client_name}} client.
 // It registers the client as a dependency in the fx application.
 // You can append interfaces into the fx.As() function to register multiple interfaces.
-var {{.client_name}}Register = fx.Provide(New%s, fx.As())
+var {{.client_name}}Register = fx.Provide(New{{.client_name}}, fx.As())
 
 type {{.client_name}}Param struct {
 	fx.In
@@ -44,7 +44,7 @@ type {{.client_name}}Param struct {
 type {{.client_name}} struct {
 }
 
-func New{{.client_name}}(ctx context.Context, lc fx.Lifecycle, param {{.client_name}}Param) *%s {
+func New{{.client_name}}(ctx context.Context, lc fx.Lifecycle, param {{.client_name}}Param) *{{.client_name}} {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			// Initialize the client here if needed
@@ -58,7 +58,18 @@ func New{{.client_name}}(ctx context.Context, lc fx.Lifecycle, param {{.client_n
 	return &{{.client_name}}{}
 }`
 
-func createFxFile(path string, name string) error {
+const fxInterfaceFileTemplate = `package {{.package_name}}
+
+import (
+	"context"
+
+	"go.uber.org/fx"
+)
+
+type {{.client_name}} interface {
+}`
+
+func createFxStructFile(path string, name string) error {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		return err
 	}
@@ -66,7 +77,25 @@ func createFxFile(path string, name string) error {
 	name = strings.ToUpper(name[:1]) + name[1:]
 
 	packageName := filepath.Base(path)
-	if err := writeTemplate2File(filepath.Join(path, fmt.Sprintf(fxFileName, name)), fxFileTemplate, map[string]any{
+	if err := writeTemplate2File(filepath.Join(path, fmt.Sprintf(fxFileName, name)), fxStructFileTemplate, map[string]any{
+		"package_name": packageName,
+		"client_name":  name,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createFxInterfaceFile(path string, name string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return err
+	}
+
+	name = strings.ToUpper(name[:1]) + name[1:]
+
+	packageName := filepath.Base(path)
+	if err := writeTemplate2File(filepath.Join(path, fmt.Sprintf(fxFileName, name)), fxInterfaceFileTemplate, map[string]any{
 		"package_name": packageName,
 		"client_name":  name,
 	}); err != nil {
