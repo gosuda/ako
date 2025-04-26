@@ -20,16 +20,14 @@ USAGE:
    ako [global options] [command [command options]]
 
 COMMANDS:
-   init, i      Initialize a new Go module
-   buf, f       Generate protobuf files using buf
-   lib, l       Generate core abstraction layer (in lib/)
-   pkg, p       Generate new package implementation (in pkg/)
-   internal, n  Generate new internal implementation (in internal/)
-   cmd, c       Generate new command implementation (in cmd/)
-   help, h      Shows a list of commands or help for one command
+   init, i    Initialize a new Go module and Git repository
+   go, g      Organize Go project
+   branch, b  Organize Git branches and commits
+   help, h    Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h  show help
+
 ```
 
 ## References
