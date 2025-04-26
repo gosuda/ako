@@ -24,7 +24,7 @@ var rootCmd = &cli.Command{
 					Config:    cli.StringConfig{TrimSpace: true},
 				},
 			},
-			Usage: "Initialize a new Go module",
+			Usage: "Initialize a new Go module and Git repository",
 			Action: func(ctx context.Context, command *cli.Command) error {
 				if len(command.Arguments) < 1 {
 					return cli.Exit("Module name is required", 1)
@@ -75,9 +75,9 @@ var rootCmd = &cli.Command{
 			},
 		},
 		{
-			Name:    "generate",
+			Name:    "go",
 			Aliases: []string{"g"},
-			Usage:   "Generate sub command",
+			Usage:   "Organize Go project",
 			Commands: []*cli.Command{
 				{
 					Name:    "buf",
@@ -222,7 +222,7 @@ var rootCmd = &cli.Command{
 		{
 			Name:    "branch",
 			Aliases: []string{"b"},
-			Usage:   "Create a new branch",
+			Usage:   "Organize Git branches and commits",
 			Commands: []*cli.Command{
 				{
 					Name:    "current",
