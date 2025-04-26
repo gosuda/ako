@@ -61,141 +61,148 @@ var rootCmd = &cli.Command{
 			},
 		},
 		{
-			Name:    "buf",
-			Aliases: []string{"f"},
-			Usage:   "Generate protobuf files using buf",
-			Action: func(ctx context.Context, command *cli.Command) error {
-				if err := runGoModuleTool("buf", "generate"); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+			Name:    "generate",
+			Aliases: []string{"g"},
+			Usage:   "Generate sub command",
+			Commands: []*cli.Command{
+				{
+					Name:    "buf",
+					Aliases: []string{"f"},
+					Usage:   "Generate protobuf files using buf",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						if err := runGoModuleTool("buf", "generate"); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				return nil
-			},
-		},
-		{
-			Name:        "lib",
-			Usage:       "Generate core abstraction layer (in lib/)",
-			Description: "Scaffolds the core abstraction layer (lib/) of your Go project.\n   This layer contains interface definitions, shared data structures (DTOs, VOs, Entities),\n   and domain models, free of concrete implementations. It establishes the contracts\n   and core concepts for other layers (internal, pkg) to depend on.",
-			Aliases:     []string{"l"},
-			Action: func(ctx context.Context, command *cli.Command) error {
-				base, err := selectLibraryBase()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						return nil
+					},
+				},
+				{
+					Name:        "lib",
+					Usage:       "Generate core abstraction layer (in lib/)",
+					Description: "Scaffolds the core abstraction layer (lib/) of your Go project.\n   This layer contains interface definitions, shared data structures (DTOs, VOs, Entities),\n   and domain models, free of concrete implementations. It establishes the contracts\n   and core concepts for other layers (internal, pkg) to depend on.",
+					Aliases:     []string{"l"},
+					Action: func(ctx context.Context, command *cli.Command) error {
+						base, err := selectLibraryBase()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				category, err := inputLibraryCategory()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						category, err := inputLibraryCategory()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				packageName, err := inputLibraryPackage()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						packageName, err := inputLibraryPackage()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				name, err := inputLibraryName()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						name, err := inputLibraryName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				path := makeLibraryPath(base, category, packageName)
-				if err := createLibraryFile(path, name); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						path := makeLibraryPath(base, category, packageName)
+						if err := createLibraryFile(path, name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				return nil
-			},
-		},
-		{
-			Name:        "pkg",
-			Aliases:     []string{"p"},
-			Usage:       "Generate new package implementation (in pkg/)",
-			Description: "Generates a new package within the pkg/ directory. This layer contains\n   the concrete implementations of interfaces defined in the lib/ layer. Packages\n   within pkg/ are typically organized based on the specific technology or external\n   dependency they integrate with (e.g., postgres, redis, zerolog, stripe).\n   This command helps scaffold the necessary directory structure and boilerplate\n   files for the implementation.",
-			Action: func(ctx context.Context, command *cli.Command) error {
-				base, err := inputPackageBase()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						return nil
+					},
+				},
+				{
+					Name:        "pkg",
+					Aliases:     []string{"p"},
+					Usage:       "Generate new package implementation (in pkg/)",
+					Description: "Generates a new package within the pkg/ directory. This layer contains\n   the concrete implementations of interfaces defined in the lib/ layer. Packages\n   within pkg/ are typically organized based on the specific technology or external\n   dependency they integrate with (e.g., postgres, redis, zerolog, stripe).\n   This command helps scaffold the necessary directory structure and boilerplate\n   files for the implementation.",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						base, err := inputPackageBase()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				category, err := inputPackageCategory()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						category, err := inputPackageCategory()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				packageName, err := inputPackageName()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						packageName, err := inputPackageName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				templateKey, err := selectFxPkgTemplateKey()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						templateKey, err := selectFxPkgTemplateKey()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				templateWriter, err := getPkgTemplateWriter(templateKey)
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						templateWriter, err := getPkgTemplateWriter(templateKey)
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				path := makePackagePath(base, category, packageName)
+						path := makePackagePath(base, category, packageName)
 
-				if err := templateWriter(path, packageName); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						if err := templateWriter(path, packageName); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				return nil
-			},
-		},
-		{
-			Name:        "internal",
-			Aliases:     []string{"n"},
-			Usage:       "Generate new internal implementation (in internal/)",
-			Description: "Scaffolds the business logic layer within the internal/ directory. This layer\n   typically contains 'controller' packages for handling requests/responses and 'service'\n   packages for orchestrating core business logic and use cases. It primarily depends\n   on the abstractions defined in lib/. Go's 'internal' visibility rules apply.\n   This command helps set up the structure for controllers and services for a given domain.",
-			Action: func(ctx context.Context, command *cli.Command) error {
-				base, err := selectInternalPackageBase()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						return nil
+					},
+				},
+				{
+					Name:        "internal",
+					Aliases:     []string{"n"},
+					Usage:       "Generate new internal implementation (in internal/)",
+					Description: "Scaffolds the business logic layer within the internal/ directory. This layer\n   typically contains 'controller' packages for handling requests/responses and 'service'\n   packages for orchestrating core business logic and use cases. It primarily depends\n   on the abstractions defined in lib/. Go's 'internal' visibility rules apply.\n   This command helps set up the structure for controllers and services for a given domain.",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						base, err := selectInternalPackageBase()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				category, err := inputInternalPackageCategory()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						category, err := inputInternalPackageCategory()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				packageName, err := inputInternalPackageName()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						packageName, err := inputInternalPackageName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				if err := createInternalPackage(base, category, packageName); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						if err := createInternalPackage(base, category, packageName); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				return nil
-			},
-		},
-		{
-			Name:        "cmd",
-			Aliases:     []string{"c"},
-			Usage:       "Generate new command implementation (in cmd/)",
-			Description: "Creates and manages the application's execution entry point (main package).\n   Its main role is to load configuration, assemble (wire) components\n   from other layers (pkg, internal) via dependency injection, and finally\n   run the application (e.g., HTTP server, worker).\n   Does not contain business logic.",
-			Action: func(ctx context.Context, command *cli.Command) error {
-				name, err := inputCmdName()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						return nil
+					},
+				},
+				{
+					Name:        "cmd",
+					Aliases:     []string{"c"},
+					Usage:       "Generate new command implementation (in cmd/)",
+					Description: "Creates and manages the application's execution entry point (main package).\n   Its main role is to load configuration, assemble (wire) components\n   from other layers (pkg, internal) via dependency injection, and finally\n   run the application (e.g., HTTP server, worker).\n   Does not contain business logic.",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						name, err := inputCmdName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				dir := filepath.Join("cmd", name)
+						dir := filepath.Join("cmd", name)
 
-				if err := createFxExecutableFile(dir); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						if err := createFxExecutableFile(dir); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				if err := generateGoImageFile(name); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
+						if err := generateGoImageFile(name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
-				return nil
+						return nil
+					},
+				},
 			},
 		},
 	},
