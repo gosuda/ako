@@ -63,6 +63,14 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := addGitFiles("."); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := commitGitFiles("feat(all): initialized project"); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
