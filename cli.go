@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -234,7 +234,28 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						fmt.Printf("Current branch name: %s\n", branch)
+						log.Printf("Current branch name: %s", branch)
+						return nil
+					},
+				},
+				{
+					Name:    "commit",
+					Aliases: []string{"m"},
+					Usage:   "Create a new message and commit",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						message, err := buildGitCommitMessage()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						log.Printf("Git commit message: %s", message)
+
+						if err := commitGitFiles(message); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						log.Printf("Git Committed files successfully")
+
 						return nil
 					},
 				},
@@ -257,7 +278,7 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						fmt.Printf("Switched to branch: %s\n", created)
+						log.Printf("Switched to branch: %s", created)
 
 						return nil
 					},

@@ -302,3 +302,59 @@ func pullGitFiles() error {
 
 	return nil
 }
+
+/*
+5. 커밋 메시지 컨벤션
+프로젝트는 Conventional Commits 규칙을 따릅니다. 모든 커밋 메시지는 다음 형식을 준수합니다.
+
+<타입>[선택적 범위][!]: <설명>
+
+<타입> (필수): feat, fix, build, chore, ci, docs, style, refactor, perf, test 등 커밋의 성격을 나타냅니다.
+
+[선택적 범위]: 커밋이 영향을 미치는 코드 영역(패키지, 모듈 등)을 명시합니다. 모노레포 환경에서는 범위를 사용하여 변경된 패키지나 영역을 명시하는 것이 충돌 예방 및 변경 추적에 도움이 될 수 있습니다. (예: feat(auth): ..., fix(ui-kit): ...). epic의 이름을 범위로 사용하는 것도 고려할 수 있습니다 (feat(new-payment-system): ...).
+
+[!]: (선택적, 중요): 실제로 하위 호환성을 깨뜨리는 변경(Breaking Change) 이 있음을 나타냅니다. 타입 또는 범위 바로 뒤에 !를 추가하며, MAJOR 버전 변경을 유발합니다.
+
+<설명> (필수): 변경 사항에 대한 간결한 설명 (현재형, 명령형, 첫 글자 소문자, 마침표 없음).
+*/
+func buildGitCommitMessage() (string, error) {
+	commitType := ""
+	if err := survey.AskOne(&survey.Select{
+		Message: "Select commit type",
+		Options: []string{"feat", "fix", "build", "chore", "ci", "docs", "style", "refactor", "perf", "test"},
+	}, &commitType, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	var scope string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the scope name (optional):",
+	}, &scope, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	var breakingChange bool
+	if err := survey.AskOne(&survey.Confirm{
+		Message: "Is this a breaking change?",
+		Default: false,
+	}, &breakingChange); err != nil {
+		return "", err
+	}
+
+	var description string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the commit message:",
+	}, &description, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	if breakingChange {
+		scope = fmt.Sprintf("%s!", scope)
+	}
+
+	if scope == "" {
+		return fmt.Sprintf("%s: %s", commitType, description), nil
+	}
+
+	return fmt.Sprintf("%s(%s): %s", commitType, scope, description), nil
+}
