@@ -274,7 +274,7 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						if err := switchGitBranchTo(created); err != nil {
+						if err := switchOrCreateGitBranchTo(created); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 

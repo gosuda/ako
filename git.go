@@ -43,7 +43,8 @@ func getGitBranchName() (string, error) {
 }
 
 func getGitBranchesWithPrefixSuffix(prefix, suffix string) ([]string, error) {
-	cmd := exec.Command("git", "branch", "--list", fmt.Sprintf("'%v*%v'", prefix, suffix))
+	query := fmt.Sprintf("%s*%s", prefix, suffix)
+	cmd := exec.Command("git", "branch", "--list", query)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -172,6 +173,17 @@ func makeGitSubBranchName(branchName string) (string, error) {
 }
 
 func switchGitBranchTo(branchName string) error {
+	cmd := exec.Command("git", "switch", branchName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func switchOrCreateGitBranchTo(branchName string) error {
 	cmd := exec.Command("git", "switch", "-C", branchName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
