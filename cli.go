@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v3"
 )
 
@@ -197,6 +199,109 @@ var rootCmd = &cli.Command{
 						}
 
 						if err := generateGoImageFile(name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
+			},
+		},
+		{
+			Name:    "branch",
+			Aliases: []string{"b"},
+			Usage:   "Create a new branch",
+			Commands: []*cli.Command{
+				{
+					Name:    "current",
+					Aliases: []string{"n"},
+					Usage:   "Get the current branch name",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						branch, err := getGitBranchName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						fmt.Printf("Current branch name: %s\n", branch)
+						return nil
+					},
+				},
+				{
+					Name:    "create",
+					Aliases: []string{"c"},
+					Usage:   "Create a new branch",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						currentBranch, err := getGitBranchName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						created, err := makeGitSubBranchName(currentBranch)
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if err := switchGitBranchTo(created); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						fmt.Printf("Switched to branch: %s\n", created)
+
+						return nil
+					},
+				},
+				{
+					Name:    "up",
+					Aliases: []string{"u"},
+					Usage:   "Up to parent branch",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						branches, err := getParentBranchName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if len(branches) == 0 {
+							return cli.Exit("No parent branch found", 1)
+						}
+
+						selectedBranch := ""
+						if err := survey.AskOne(&survey.Select{
+							Message: "Choose branch",
+							Options: branches,
+						}, &selectedBranch, survey.WithValidator(survey.Required)); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if err := switchGitBranchTo(selectedBranch); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
+				{
+					Name:    "down",
+					Aliases: []string{"d"},
+					Usage:   "Down to child branch",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						branches, err := getChildrenBranchName()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if len(branches) == 0 {
+							return cli.Exit("No child branch found", 1)
+						}
+
+						selectedBranch := ""
+						if err := survey.AskOne(&survey.Select{
+							Message: "Choose branch",
+							Options: branches,
+						}, &selectedBranch, survey.WithValidator(survey.Required)); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if err := switchGitBranchTo(selectedBranch); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
