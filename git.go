@@ -140,7 +140,7 @@ func makeGitSubBranchName(branchName string) (string, error) {
 	case gitBranchPrefixDevelop:
 		var scopeName string
 		if err := survey.AskOne(&survey.Input{
-			Message: "Enter the scope name (optional):",
+			Message: "Enter the scope name:",
 		}, &scopeName, survey.WithValidator(survey.Required)); err != nil {
 			return "", err
 		}
