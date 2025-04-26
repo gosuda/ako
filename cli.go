@@ -59,6 +59,10 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := initGit(gitBranchPrefixRelease); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
