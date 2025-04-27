@@ -6,7 +6,11 @@ import (
 )
 
 func generateGoImageFile(appName string) error {
-	const template = `FROM docker.io/library/golang:latest
+	const template = `
+# Run
+# docker build -f cmd/{{.cmd_name}}/Dockerfile -t <org>/<group>/{{.cmd_name}} .
+# in root of the project to build the image.
+FROM docker.io/library/golang:latest
 
 WORKDIR /app
 
@@ -15,7 +19,7 @@ COPY go.sum .
 
 RUN go mod download
 
-COPY ../../ .
+COPY . .
 RUN go build -o main ./cmd/{{.cmd_name}}/.
 
 FROM alpine:latest
