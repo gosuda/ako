@@ -20,7 +20,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -o main ./cmd/{{.cmd_name}}/.
+RUN CGO_ENABLED=0 go build -o main ./cmd/{{.cmd_name}}/.
 
 FROM alpine:latest
 
