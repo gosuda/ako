@@ -1,4 +1,4 @@
-module github.com/snowmerak/ako
+module github.com/gosuda/ako
 
 go 1.24.2
 

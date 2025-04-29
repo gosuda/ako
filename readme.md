@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-go install github.com/snowmerak/ako@latest
+go install github.com/gosuda/ako@latest
 ```
 
 # Usage
