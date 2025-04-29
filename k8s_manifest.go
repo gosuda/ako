@@ -1,15 +1,48 @@
 package main
 
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+const (
+	k8sEnvLocal  = "local"
+	k8sEnvRemote = "remote"
+)
+
+const (
+	k8sManifestFolder  = "manifests"
+	k8sNamespaceFile   = "namespace.yaml"
+	k8sDeploymentFile  = "deployment.yaml"
+	k8sServiceFile     = "service.yaml"
+	k8sIngressFile     = "ingress.yaml"
+	k8sCronJobFile     = "cronjob.yaml"
+	k8sPvcFile         = "pvc.yaml"
+	k8sConfigMapFile   = "configmap.yaml"
+	k8sSecretFile      = "secret.yaml"
+	k8sJobFile         = "job.yaml"
+	k8sStatefulSetFile = "statefulset.yaml"
+	k8sDaemonSetFile   = "daemonset.yaml"
+	k8sReplicaSetFile  = "replicaset.yaml"
+)
+
+func makeK8sManifestFile(env string, typ string, depth ...string) string {
+	l := make([]string, 2+len(depth))
+	l[0] = k8sManifestFolder
+	copy(l[1:], depth)
+	l[1+len(depth)] = env + "-" + typ
+	return filepath.Join(l...)
+}
+
 const k8sNamespaceTemplate = `apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Namespace }} # Namespace 이름
   labels:
-    # Label 예시 (템플릿 변수로 만들거나 고정값 사용 가능)
-    team: {{ .Team | default "default-team" }}
+    team: {{ .Team | default "your-team" }}
     environment: {{ .Environment | default "development" }}
   annotations:
-    # Annotation 예시
     description: "{{ .Description }}"
     contact-person: "{{ .ContactPerson }}"
 `
@@ -20,6 +53,27 @@ type K8sNamespaceData struct {
 	Environment   string
 	Description   string
 	ContactPerson string
+}
+
+func generateK8sNamespaceFile(namespace string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	namespaceData := K8sNamespaceData{
+		Namespace:     namespace,
+		Team:          "your-team",
+		Environment:   "development",
+		Description:   "Write description here",
+		ContactPerson: "your-name",
+	}
+
+	namespaceFilePath := filepath.Join(k8sManifestFolder, k8sNamespaceTemplate)
+	if err := writeTemplate2File(namespaceFilePath, k8sNamespaceTemplate, namespaceData); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const k8sDeploymentTemplate = `apiVersion: apps/v1
@@ -44,7 +98,7 @@ spec:
     metadata:
       labels:
         app: {{ .AppName }}
-        tier: {{ .Tier | default "backend" }}
+        tier: {{ .Tier | default "service" }}
     spec:
       containers:
       - name: {{ .ContainerName | default .AppName }}
@@ -103,7 +157,7 @@ type K8sSecretEnvVar struct {
 type K8sDeploymentData struct {
 	AppName                string
 	Namespace              string
-	Tier                   string
+	Tier                   string // "service", "aggregator", "orchestrator", "worker", "middleware"
 	Version                string
 	ChangeCause            string
 	EnablePrometheusScrape string
@@ -116,6 +170,50 @@ type K8sDeploymentData struct {
 	Resources              *K8sResources
 	EnvVars                []K8sEnvVar
 	SecretEnvVars          []K8sSecretEnvVar
+}
+
+func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	deploymentData := K8sDeploymentData{
+		AppName:     cmdDepth[len(cmdDepth)-1],
+		Namespace:   namespace,
+		Tier:        tier,
+		Version:     "v1.0.0",
+		ChangeCause: "Initial deployment",
+		Image:       "remote.registry.io/" + strings.Join(cmdDepth, "/"),
+		Tag:         "latest",
+		Port:        8080,
+		Replicas:    3,
+		Resources: &K8sResources{
+			Requests: K8sResourceRequirements{
+				Memory: "256Mi",
+				CPU:    "500m",
+			},
+			Limits: K8sResourceRequirements{
+				Memory: "1Gi",
+				CPU:    "1",
+			},
+		},
+	}
+
+	deploymentFilePath := makeK8sManifestFile(k8sEnvRemote, k8sDeploymentFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(deploymentFilePath), 0755); err != nil {
+		return err
+	}
+	if err := writeTemplate2File(deploymentFilePath, k8sDeploymentTemplate, deploymentData); err != nil {
+		return err
+	}
+
+	deploymentData.Image = "k3d-myregistry.localhost:5000/" + strings.Join(cmdDepth, "/")
+	deploymentFilePath = makeK8sManifestFile(k8sEnvLocal, k8sDeploymentFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(deploymentFilePath), 0755); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const K8sServiceTemplate = `apiVersion: v1
