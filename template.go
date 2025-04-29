@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-func writeTemplate2File(filename string, tmp string, data map[string]interface{}) error {
+func writeTemplate2File(filename string, tmp string, data any) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
