@@ -286,6 +286,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 	if err := os.MkdirAll(filepath.Dir(deploymentFilePath), 0755); err != nil {
 		return err
 	}
+
 	if err := writeTemplate2File(deploymentFilePath, k8sDeploymentTemplate, deploymentData); err != nil {
 		return err
 	}
@@ -293,6 +294,10 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 	deploymentData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
 	deploymentFilePath = makeK8sManifestFile(k8sEnvLocal, k8sDeploymentFile, cmdDepth...)
 	if err := os.MkdirAll(filepath.Dir(deploymentFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(deploymentFilePath, k8sDeploymentTemplate, deploymentData); err != nil {
 		return err
 	}
 
