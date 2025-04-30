@@ -283,7 +283,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 	}
 
 	deploymentFilePath := makeK8sManifestFile(k8sEnvRemote, k8sDeploymentFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(deploymentFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(deploymentFilePath), 0755); err != nil {
 		return err
 	}
 	if err := writeTemplate2File(deploymentFilePath, k8sDeploymentTemplate, deploymentData); err != nil {
@@ -292,7 +292,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 
 	deploymentData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
 	deploymentFilePath = makeK8sManifestFile(k8sEnvLocal, k8sDeploymentFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(deploymentFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(deploymentFilePath), 0755); err != nil {
 		return err
 	}
 
@@ -342,7 +342,7 @@ func generateK8sServiceFile(namespace string, cmdDepth ...string) error {
 	}
 
 	serviceFilePath := makeK8sManifestFile(k8sEnvRemote, k8sServiceFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(serviceFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(serviceFilePath), 0755); err != nil {
 		return err
 	}
 
@@ -351,7 +351,7 @@ func generateK8sServiceFile(namespace string, cmdDepth ...string) error {
 	}
 
 	serviceFilePath = makeK8sManifestFile(k8sEnvLocal, k8sServiceFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(serviceFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(serviceFilePath), 0755); err != nil {
 		return err
 	}
 
@@ -508,7 +508,7 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 	}
 
 	cronJobFilePath := makeK8sManifestFile(k8sEnvRemote, k8sCronJobFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(cronJobFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(cronJobFilePath), 0755); err != nil {
 		return err
 	}
 	if err := writeTemplate2File(cronJobFilePath, K8sCronJobTemplate, cronJobData); err != nil {
@@ -517,7 +517,7 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 
 	cronJobData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
 	cronJobFilePath = makeK8sManifestFile(k8sEnvLocal, k8sCronJobFile, cmdDepth...)
-	if err := os.MkdirAll(filepath.Base(cronJobFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(cronJobFilePath), 0755); err != nil {
 		return err
 	}
 
