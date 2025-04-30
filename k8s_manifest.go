@@ -266,7 +266,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 		Tier:        tier,
 		Version:     "v1.0.0",
 		ChangeCause: "Initial deployment",
-		Image:       "remote.registry.io/" + strings.Join(cmdDepth, "/"),
+		Image:       globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
 		Tag:         "latest",
 		Port:        8080,
 		Replicas:    3,
@@ -290,7 +290,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 		return err
 	}
 
-	deploymentData.Image = "k3d-myregistry.localhost:5000/" + strings.Join(cmdDepth, "/")
+	deploymentData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
 	deploymentFilePath = makeK8sManifestFile(k8sEnvLocal, k8sDeploymentFile, cmdDepth...)
 	if err := os.MkdirAll(filepath.Base(deploymentFilePath), 0755); err != nil {
 		return err
@@ -345,6 +345,16 @@ func generateK8sServiceFile(namespace string, cmdDepth ...string) error {
 	if err := os.MkdirAll(filepath.Base(serviceFilePath), 0755); err != nil {
 		return err
 	}
+
+	if err := writeTemplate2File(serviceFilePath, K8sServiceTemplate, serviceData); err != nil {
+		return err
+	}
+
+	serviceFilePath = makeK8sManifestFile(k8sEnvLocal, k8sServiceFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(serviceFilePath), 0755); err != nil {
+		return err
+	}
+
 	if err := writeTemplate2File(serviceFilePath, K8sServiceTemplate, serviceData); err != nil {
 		return err
 	}
@@ -402,6 +412,29 @@ type K8sIngressData struct {
 	TlsSecretName      string
 }
 
+func generateK8sIngressFile(namespace string, appName string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	ingressData := K8sIngressData{
+		AppName:      appName,
+		Namespace:    namespace,
+		IngressClass: "traefik",
+	}
+
+	ingressFilePath := filepath.Join(k8sManifestFolder, appName, k8sIngressFile)
+	if err := os.MkdirAll(filepath.Base(ingressFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(ingressFilePath, K8sIngressTemplate, ingressData); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 const K8sCronJobTemplate = `# cronjob.tmpl
 apiVersion: batch/v1
 kind: CronJob
@@ -453,6 +486,42 @@ type CronJobData struct {
 	SuccessfulJobsHistoryLimit int
 	FailedJobsHistoryLimit     int
 	ConcurrencyPolicy          string
+}
+
+func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	cronJobData := CronJobData{
+		CronJobName:   cmdDepth[len(cmdDepth)-1],
+		Namespace:     namespace,
+		Description:   "Write description here",
+		Schedule:      "*/5 * * * *",
+		Image:         globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
+		Tag:           "latest",
+		RestartPolicy: "OnFailure",
+	}
+
+	cronJobFilePath := makeK8sManifestFile(k8sEnvRemote, k8sCronJobFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(cronJobFilePath), 0755); err != nil {
+		return err
+	}
+	if err := writeTemplate2File(cronJobFilePath, K8sCronJobTemplate, cronJobData); err != nil {
+		return err
+	}
+
+	cronJobData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
+	cronJobFilePath = makeK8sManifestFile(k8sEnvLocal, k8sCronJobFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(cronJobFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(cronJobFilePath, K8sCronJobTemplate, cronJobData); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const k8sPvcTemplate = `# pvc.tmpl
