@@ -95,3 +95,47 @@ func applyK8sManifest(file string) error {
 
 	return nil
 }
+
+func runK8sGetPods() error {
+	cmd := exec.Command("kubectl", "get", "pods", "--context", K3dClusterPrefix+globalConfig.Cluster, "-n", globalConfig.Namespace, "-o", "wide")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func runK8sGetServices() error {
+	cmd := exec.Command("kubectl", "get", "services", "--context", K3dClusterPrefix+globalConfig.Cluster, "-n", globalConfig.Namespace, "-o", "wide")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func runK8sGetDeployments() error {
+	cmd := exec.Command("kubectl", "get", "deployments", "--context", K3dClusterPrefix+globalConfig.Cluster, "-n", globalConfig.Namespace, "-o", "wide")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func runK8sGetIngress() error {
+	cmd := exec.Command("kubectl", "get", "ingress", "--context", K3dClusterPrefix+globalConfig.Cluster, "-n", globalConfig.Namespace, "-o", "wide")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}

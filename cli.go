@@ -688,6 +688,61 @@ var rootCmd = &cli.Command{
 								return nil
 							},
 						},
+						{
+							Name:    "get",
+							Aliases: []string{"g"},
+							Usage:   "Get K3D resources",
+							Commands: []*cli.Command{
+								{
+									Name:    "pods",
+									Aliases: []string{"p", "po"},
+									Usage:   "Get K3D pods",
+									Action: func(ctx context.Context, command *cli.Command) error {
+										if err := runK8sGetPods(); err != nil {
+											return cli.Exit(err.Error(), 1)
+										}
+
+										return nil
+									},
+								},
+								{
+									Name:    "services",
+									Aliases: []string{"s", "svc"},
+									Usage:   "Get K3D services",
+									Action: func(ctx context.Context, command *cli.Command) error {
+										if err := runK8sGetServices(); err != nil {
+											return cli.Exit(err.Error(), 1)
+										}
+
+										return nil
+									},
+								},
+								{
+									Name:    "deployments",
+									Aliases: []string{"d", "deploy"},
+									Usage:   "Get K3D deployments",
+									Action: func(ctx context.Context, command *cli.Command) error {
+										if err := runK8sGetDeployments(); err != nil {
+											return cli.Exit(err.Error(), 1)
+										}
+
+										return nil
+									},
+								},
+								{
+									Name:    "ingress",
+									Aliases: []string{"i"},
+									Usage:   "Get K3D ingress",
+									Action: func(ctx context.Context, command *cli.Command) error {
+										if err := runK8sGetIngress(); err != nil {
+											return cli.Exit(err.Error(), 1)
+										}
+
+										return nil
+									},
+								},
+							},
+						},
 					},
 				},
 			},
