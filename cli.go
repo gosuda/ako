@@ -635,7 +635,12 @@ var rootCmd = &cli.Command{
 										return cli.Exit(err.Error(), 1)
 									}
 								case k8sManifestKindCronJob:
+									if err := generateK8sCronJobFile(globalConfig.Namespace, cmds...); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
 								}
+
+								log.Printf("Created K3D manifest for command: %s", selectedCmd)
 
 								return nil
 							},
