@@ -4,7 +4,22 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
 )
+
+func inputGoModuleName() (string, error) {
+	var moduleName string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the Go module name [github.com/username/repo]:",
+	}, &moduleName, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	moduleName = strings.TrimSpace(moduleName)
+
+	return moduleName, nil
+}
 
 func initGoModule(moduleName string) error {
 	cmd := exec.Command("go", "mod", "init", moduleName)
