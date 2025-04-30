@@ -99,8 +99,8 @@ kind: Namespace
 metadata:
   name: {{ .Namespace }} # Namespace 이름
   labels:
-    team: {{ .Team | default "your-team" }}
-    environment: {{ .Environment | default "development" }}
+    team: {{ .Team }}
+    environment: {{ .Environment }}
   annotations:
     description: "{{ .Description }}"
     contact-person: "{{ .ContactPerson }}"
@@ -142,14 +142,14 @@ metadata:
   namespace: {{ .Namespace }}
   labels:
     app: {{ .AppName }}
-    tier: {{ .Tier | default "backend" }}
+    tier: {{ .Tier }}
     version: {{ .Version }}
   annotations:
     kubernetes.io/change-cause: "{{ .ChangeCause }}"
-    prometheus.io/scrape: "{{ .EnablePrometheusScrape | default "false" }}"
-    prometheus.io/port: "{{ .MetricsPort | default "8080" }}"
+    prometheus.io/scrape: "{{ .EnablePrometheusScrape }}"
+    prometheus.io/port: "{{ .MetricsPort }}"
 spec:
-  replicas: {{ .Replicas | default 1 }}
+  replicas: {{ .Replicas }}
   selector:
     matchLabels:
       app: {{ .AppName }}
@@ -157,10 +157,10 @@ spec:
     metadata:
       labels:
         app: {{ .AppName }}
-        tier: {{ .Tier | default "service" }}
+        tier: {{ .Tier }}
     spec:
       containers:
-      - name: {{ .ContainerName | default .AppName }}
+      - name: {{ .ContainerName }}
         image: {{ .Image }}:{{ .Tag }}
         ports:
         - containerPort: {{ .Port }}
@@ -315,7 +315,7 @@ spec:
     - protocol: TCP
       port: {{ .ServicePort }}
       targetPort: {{ .TargetPort }} # Deployment의 containerPort와 일치
-  type: {{ .ServiceType | default "ClusterIP" }}
+  type: {{ .ServiceType }}
 `
 
 type K8sServiceData struct {
@@ -375,19 +375,19 @@ metadata:
     cert-manager.io/cluster-issuer: "{{ .CertManagerIssuer }}"
     {{- end }}
     {{- if eq .IngressClass "nginx" }}
-    nginx.ingress.kubernetes.io/rewrite-target: "{{ .NginxRewriteTarget | default "/" }}"
-    nginx.ingress.kubernetes.io/ssl-redirect: "{{ .NginxSslRedirect | default "true" }}"
+    nginx.ingress.kubernetes.io/rewrite-target: "{{ .NginxRewriteTarget }}"
+    nginx.ingress.kubernetes.io/ssl-redirect: "{{ .NginxSslRedirect }}"
     {{- end }}
 spec:
   rules:
   - host: {{ .Domain }}
     http:
       paths:
-      - path: {{ .Path | default "/" }}
-        pathType: {{ .PathType | default "Prefix" }}
+      - path: {{ .Path }}
+        pathType: {{ .PathType }}
         backend:
           service:
-            name: {{ .AppName }}-service
+            name: input-your-inner-service
             port:
               number: {{ .ServicePort }}
   {{- if .TlsSecretName }}
@@ -421,6 +421,10 @@ func generateK8sIngressFile(namespace string, appName string) error {
 		AppName:      appName,
 		Namespace:    namespace,
 		IngressClass: "traefik",
+		Domain:       "localhost",
+		Path:         "/",
+		PathType:     "prefix",
+		ServicePort:  8080,
 	}
 
 	ingressFilePath := filepath.Join(k8sManifestFolder, appName, k8sIngressFile)
@@ -442,7 +446,7 @@ metadata:
   name: {{ .CronJobName }}
   namespace: {{ .Namespace }}
   labels:
-    job-type: {{ .JobType | default "scheduled-task" }}
+    job-type: {{ .JobType }}
   annotations:
     description: "{{ .Description }}"
 spec:
@@ -452,7 +456,7 @@ spec:
       template:
         spec:
           containers:
-          - name: {{ .ContainerName | default .CronJobName }}
+          - name: {{ .ContainerName }}
             image: {{ .Image }}:{{ .Tag }}
             {{- if .Args }}
             args:
@@ -465,10 +469,10 @@ spec:
             - secretRef:
                 name: {{ .EnvFromSecret }}
             {{- end }}
-          restartPolicy: {{ .RestartPolicy | default "OnFailure" }}
-  successfulJobsHistoryLimit: {{ .SuccessfulJobsHistoryLimit | default 3 }}
-  failedJobsHistoryLimit: {{ .FailedJobsHistoryLimit | default 1 }}
-  concurrencyPolicy: {{ .ConcurrencyPolicy | default "Allow" }}
+          restartPolicy: {{ .RestartPolicy }}
+  successfulJobsHistoryLimit: {{ .SuccessfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .FailedJobsHistoryLimit }}
+  concurrencyPolicy: {{ .ConcurrencyPolicy }}
 `
 
 type CronJobData struct {
@@ -544,7 +548,7 @@ metadata:
   {{- end }}
 spec:
   accessModes:
-    - {{ .AccessMode | default "ReadWriteOnce" }}
+    - {{ .AccessMode }}
   resources:
     requests:
       storage: {{ .StorageSize }} # 예: "5Gi"
