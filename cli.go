@@ -645,6 +645,27 @@ var rootCmd = &cli.Command{
 								return nil
 							},
 						},
+						{
+							Name:    "build",
+							Aliases: []string{"b", "d", "deploy"},
+							Usage:   "Build cmd and push to local registry",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selectedCmd, err := selectCmdName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								cmds := strings.Split(selectedCmd, "/")
+
+								if err := buildDockerImage(cmds...); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Built K3D manifest for command: %s", selectedCmd)
+
+								return nil
+							},
+						},
 					},
 				},
 			},
