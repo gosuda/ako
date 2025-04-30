@@ -6,10 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fatih/color"
-
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/rodaine/table"
 	"github.com/urfave/cli/v3"
 )
 
@@ -415,15 +412,11 @@ var rootCmd = &cli.Command{
 									return nil
 								}
 
-								headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
-								columnFmt := color.New(color.FgYellow).SprintfFunc()
-
-								tbl := table.New("NAME", "IMAGE BUILD TAG", "MANIFEST TAG", "STATUS")
-								tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+								tbl := NewTableBuilder("NAME", "IMAGE BUILD TAG", "MANIFEST TAG", "STATUS")
 
 								for _, registry := range registries {
 									addr := "localhost:" + registry.PortMappings.Five000TCP[0].HostPort
-									tbl.AddRow(registry.Name, addr, registry.Name+"."+addr, registry.State.Status)
+									tbl.AppendRow(registry.Name, addr, registry.Name+"."+addr, registry.State.Status)
 								}
 
 								tbl.Print()
@@ -507,11 +500,7 @@ var rootCmd = &cli.Command{
 									return nil
 								}
 
-								headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
-								columnFmt := color.New(color.FgYellow).SprintfFunc()
-
-								tbl := table.New("NAME", "SERVERS", "AGENTS", "RUNNING", "OUTBOUND PORT (HOST -> CONTAINER)")
-								tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+								tbl := NewTableBuilder("NAME", "SERVERS", "AGENTS", "RUNNING", "OUTBOUND PORT (HOST -> CONTAINER)")
 
 								for _, cluster := range clusters {
 									builder := strings.Builder{}
@@ -528,7 +517,7 @@ var rootCmd = &cli.Command{
 											}
 										}
 									}
-									tbl.AddRow(cluster.Name, cluster.ServersCount, cluster.AgentsCount, (cluster.AgentsRunning > 0) && (cluster.ServersRunning > 0), builder.String())
+									tbl.AppendRow(cluster.Name, cluster.ServersCount, cluster.AgentsCount, (cluster.AgentsRunning > 0) && (cluster.ServersRunning > 0), builder.String())
 								}
 
 								tbl.Print()
