@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 func generateTimeBasedVersion() string {
@@ -50,11 +52,11 @@ func buildDockerImage(cmdDepth ...string) error {
 		return err
 	}
 
-	log.Printf("pushed image to local registry: %s", originImageTagForLocal)
+	log.Printf("pushed image to local registry: %s", color.New(color.Bold).Sprint(originImageTagForLocal))
 
 	imageTagForRemote := globalConfig.RemoteRegistry + "/" + imageTag
 
-	log.Printf("Building docker image for remote image %s", imageTagForRemote)
+	log.Printf("Building docker image for remote image %s", color.New(color.Bold).Sprint(imageTagForLocal))
 
 	cmd = exec.Command("docker", "tag", imageTag, imageTagForRemote)
 	cmd.Stdout = os.Stdout
@@ -63,7 +65,7 @@ func buildDockerImage(cmdDepth ...string) error {
 		return err
 	}
 
-	log.Printf("push image %s yourself, I cannot assist.", imageTagForRemote)
+	log.Printf("push image %s yourself, I cannot assist.", color.New(color.Bold).Sprint(imageTagForRemote))
 
 	return nil
 }
