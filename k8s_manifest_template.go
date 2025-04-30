@@ -429,7 +429,7 @@ func generateK8sIngressFile(namespace string, appName string) error {
 		IngressClass: "traefik",
 		Domain:       "localhost",
 		Path:         "/",
-		PathType:     "prefix",
+		PathType:     "Prefix",
 		ServicePort:  8080,
 	}
 
