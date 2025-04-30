@@ -14,7 +14,10 @@ type K3dConfig struct {
 	RemoteRegistry string `yaml:"remoteRegistry"`
 }
 
-var globalConfig K3dConfig
+var (
+	globalConfig          K3dConfig
+	globalConfigNotExists bool
+)
 
 const k3dConfigFileName = "k3d_config.yaml"
 
@@ -25,6 +28,9 @@ func getK3dConfigPath() string {
 func init() {
 	f, err := os.Open(getK3dConfigPath())
 	if err != nil {
+		if os.IsNotExist(err) {
+			globalConfigNotExists = true
+		}
 		return
 	}
 	defer f.Close()
@@ -33,6 +39,18 @@ func init() {
 	if err := decoder.Decode(&globalConfig); err != nil {
 		return
 	}
+}
+
+func isNotExistsK3dConfig() bool {
+	if globalConfigNotExists {
+		return true
+	}
+
+	if globalConfig.Cluster == "" || globalConfig.Namespace == "" {
+		return true
+	}
+
+	return false
 }
 
 func saveK3dConfig() error {
