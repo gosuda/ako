@@ -581,6 +581,18 @@ var rootCmd = &cli.Command{
 									return cli.Exit(err.Error(), 1)
 								}
 
+								if err := generateK8sNamespaceFile(namespace); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := generateK8sIngressFile(namespace, "public"); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := generateK8sIngressFile(namespace, "private"); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
 								log.Printf("Initialized K3D manifest for cluster: %s", selectedCluster)
 								log.Printf("Local registry: %s", selectedLocalRegistry)
 								log.Printf("Remote registry: %s", remoteRegistry)
