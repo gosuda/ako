@@ -45,7 +45,7 @@ func GetK8sManifestList(prefix string) ([]string, error) {
 
 	var k8sManifestListSlice []string
 	for k8sManifest := range k8sManifestList {
-		k8sManifestListSlice = append(k8sManifestListSlice, strings.TrimPrefix(k8sManifest, prefix))
+		k8sManifestListSlice = append(k8sManifestListSlice, strings.TrimPrefix(k8sManifest, prefix)+"/")
 	}
 
 	slices.Sort(k8sManifestListSlice)
