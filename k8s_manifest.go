@@ -261,15 +261,16 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 	}
 
 	deploymentData := K8sDeploymentData{
-		AppName:     cmdDepth[len(cmdDepth)-1],
-		Namespace:   namespace,
-		Tier:        tier,
-		Version:     "v1.0.0",
-		ChangeCause: "Initial deployment",
-		Image:       globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
-		Tag:         "latest",
-		Port:        8080,
-		Replicas:    3,
+		AppName:       cmdDepth[len(cmdDepth)-1],
+		Namespace:     namespace,
+		Tier:          tier,
+		Version:       "v1.0.0",
+		ChangeCause:   "Initial deployment",
+		ContainerName: cmdDepth[len(cmdDepth)-1],
+		Image:         globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
+		Tag:           "latest",
+		Port:          8080,
+		Replicas:      3,
 		Resources: &K8sResources{
 			Requests: K8sResourceRequirements{
 				Memory: "256Mi",
