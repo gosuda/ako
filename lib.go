@@ -51,7 +51,7 @@ func selectLibraryBase() (string, error) {
 func inputLibraryPackage() (string, error) {
 	var packageName string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the library package name:",
+		Message: "Enter the library package path:",
 	}, &packageName, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
 	}
