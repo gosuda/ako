@@ -4,8 +4,12 @@ import (
 	"context"
 	"log"
 	"path/filepath"
+	"strings"
+
+	"github.com/fatih/color"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/rodaine/table"
 	"github.com/urfave/cli/v3"
 )
 
@@ -343,6 +347,293 @@ var rootCmd = &cli.Command{
 						}
 
 						return nil
+					},
+				},
+			},
+		},
+		{
+			Name:    "k3d",
+			Aliases: []string{"k"},
+			Usage:   "Manage K3S manifests and clusters",
+			Commands: []*cli.Command{
+				{
+					Name:    "registry",
+					Aliases: []string{"r"},
+					Usage:   "Manage K3D registries",
+					Commands: []*cli.Command{
+						{
+							Name:    "create",
+							Aliases: []string{"c"},
+							Usage:   "Create a new K3D registry",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								name, err := inputK3dRegistryName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := createK3dRegistry(name); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Created K3D registry: %s", name)
+								return nil
+							},
+						},
+						{
+							Name:    "delete",
+							Aliases: []string{"d", "rm"},
+							Usage:   "Delete a K3D registry",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selected, err := selectK3dRegistryName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								for _, name := range selected {
+									if err := deleteK3dRegistry(name); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									log.Printf("Deleted K3D registry: %s", name)
+								}
+
+								return nil
+							},
+						},
+						{
+							Name:    "list",
+							Aliases: []string{"ls", "l"},
+							Usage:   "List K3D registries",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								registries, err := getK3dRegistries()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if len(registries) == 0 {
+									log.Println("No registries found")
+									return nil
+								}
+
+								headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
+								columnFmt := color.New(color.FgYellow).SprintfFunc()
+
+								tbl := table.New("NAME", "IMAGE BUILD TAG", "MANIFEST TAG", "STATUS")
+								tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+
+								for _, registry := range registries {
+									addr := "localhost:" + registry.PortMappings.Five000TCP[0].HostPort
+									tbl.AddRow(registry.Name, addr, registry.Name+"."+addr, registry.State.Status)
+								}
+
+								tbl.Print()
+
+								return nil
+							},
+						},
+					},
+				},
+				{
+					Name:    "cluster",
+					Aliases: []string{"c"},
+					Usage:   "Manage K3D clusters",
+					Commands: []*cli.Command{
+						{
+							Name:    "create",
+							Aliases: []string{"c"},
+							Usage:   "Create a new K3D cluster",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								name, err := inputK3dClusterName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								agents, err := inputK3dClusterAgents()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								portMap, err := inputK3dClusterLoadBalancerPortMap()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								registryData, err := selectK3dRegistryForCluster()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := createK3dCluster(name, agents, registryData, portMap); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Created K3D cluster: %s", name)
+								return nil
+							},
+						},
+						{
+							Name:    "delete",
+							Aliases: []string{"d", "rm"},
+							Usage:   "Delete a K3D cluster",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selected, err := selectK3dClusterNames()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								for _, name := range selected {
+									if err := deleteK3dCluster(name); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									log.Printf("Deleted K3D cluster: %s", name)
+								}
+
+								return nil
+							},
+						},
+						{
+							Name:    "list",
+							Aliases: []string{"ls", "l"},
+							Usage:   "List K3D clusters",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								clusters, err := getK3dClusters()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if len(clusters) == 0 {
+									log.Println("No clusters found")
+									return nil
+								}
+
+								headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
+								columnFmt := color.New(color.FgYellow).SprintfFunc()
+
+								tbl := table.New("NAME", "SERVERS", "AGENTS", "RUNNING", "OUTBOUND PORT (HOST -> CONTAINER)")
+								tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+
+								for _, cluster := range clusters {
+									builder := strings.Builder{}
+									for _, node := range cluster.Nodes {
+										const loadBalancerRole = "loadbalancer"
+										if node.Role == loadBalancerRole {
+											for k, v := range node.PortMappings {
+												for _, v := range v {
+													builder.WriteString(v.HostPort)
+													builder.WriteString(" -> ")
+													builder.WriteString(k)
+													builder.WriteString("\n")
+												}
+											}
+										}
+									}
+									tbl.AddRow(cluster.Name, cluster.ServersCount, cluster.AgentsCount, (cluster.AgentsRunning > 0) && (cluster.ServersRunning > 0), builder.String())
+								}
+
+								tbl.Print()
+
+								return nil
+							},
+						},
+						{
+							Name:    "append-port",
+							Aliases: []string{"ap", "a"},
+							Usage:   "Append port to K3D cluster",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selected, err := selectK3dClusterNames()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								portMap, err := inputK3dClusterLoadBalancerPortMap()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								for _, name := range selected {
+									for h, c := range portMap {
+										if err := addK3dClusterPort(name, h, c); err != nil {
+											return cli.Exit(err.Error(), 1)
+										}
+									}
+
+									log.Printf("Appended port to K3D cluster: %s", name)
+								}
+
+								return nil
+							},
+						},
+					},
+				},
+				{
+					Name:    "manifest",
+					Aliases: []string{"m", "f"},
+					Usage:   "Manage K3D manifests",
+					Commands: []*cli.Command{
+						{
+							Name:    "init",
+							Aliases: []string{"i"},
+							Usage:   "Initialize a new K3D manifest",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selectedCluster, err := SelectK3dClusterName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								selectedLocalRegistry, err := selectK3dRegistryForCluster()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								namespace, err := inputK8sNamespace()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								remoteRegistry, err := inputK8sRemoteRegistry()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								globalConfig.Cluster = selectedCluster
+								globalConfig.Namespace = namespace
+								globalConfig.LocalRegistry = selectedLocalRegistry
+								globalConfig.RemoteRegistry = remoteRegistry
+								if err := saveK3dConfig(); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Initialized K3D manifest for cluster: %s", selectedCluster)
+								log.Printf("Local registry: %s", selectedLocalRegistry)
+								log.Printf("Remote registry: %s", remoteRegistry)
+								log.Printf("Namespace: %s", namespace)
+
+								log.Printf("K3D manifest initialized successfully")
+
+								return nil
+							},
+						},
+						{
+							Name:    "create",
+							Aliases: []string{"c"},
+							Usage:   "Create a new K3D manifest",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selectedCmd, err := selectCmdName()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								selectedKind, err := selectK8sManifestKind()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Created K3D manifest: %s for %s", selectedKind, selectedCmd)
+
+								return nil
+							},
+						},
 					},
 				},
 			},
