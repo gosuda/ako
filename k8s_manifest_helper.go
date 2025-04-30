@@ -45,10 +45,16 @@ func GetK8sManifestList(prefix string) ([]string, error) {
 
 	var k8sManifestListSlice []string
 	for k8sManifest := range k8sManifestList {
-		k8sManifestListSlice = append(k8sManifestListSlice, strings.TrimPrefix(k8sManifest, prefix)+"/")
+		k8sManifestListSlice = append(k8sManifestListSlice, k8sManifest)
 	}
 
 	slices.Sort(k8sManifestListSlice)
+
+	if prefix == k8sManifestFolder {
+		for i := range k8sManifestListSlice {
+			k8sManifestListSlice[i] = strings.TrimPrefix(k8sManifestListSlice[i], prefix+"/")
+		}
+	}
 
 	return k8sManifestListSlice, nil
 }
