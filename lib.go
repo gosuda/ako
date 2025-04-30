@@ -15,8 +15,8 @@ const (
 	libDomain      = "domain"
 )
 
-func makeLibraryPath(base string, category string, name string) string {
-	return filepath.Join("lib", base, category, name)
+func makeLibraryPath(base string, name string) string {
+	return filepath.Join("lib", base, name)
 }
 
 func selectLibraryBase() (string, error) {
@@ -46,22 +46,6 @@ func selectLibraryBase() (string, error) {
 	base = strings.TrimSpace(sp[0])
 
 	return base, nil
-}
-
-func inputLibraryCategory() (string, error) {
-	var category string
-	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the library category [lib/<base>/<category>/<package>]:",
-	}, &category, survey.WithValidator(survey.Required)); err != nil {
-		return "", err
-	}
-
-	category = strings.TrimSpace(category)
-	if category == "" {
-		return "", fmt.Errorf("invalid library category: %s", category)
-	}
-
-	return category, nil
 }
 
 func inputLibraryPackage() (string, error) {

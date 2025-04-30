@@ -8,8 +8,8 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
-func makePackagePath(base string, category string, name string) string {
-	return filepath.Join("pkg", base, category, name)
+func makePackagePath(base string, name string) string {
+	return filepath.Join("pkg", base, name)
 }
 
 func inputPackageBase() (string, error) {
@@ -28,7 +28,7 @@ func inputPackageBase() (string, error) {
 	}
 	var base string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the package base [pkg/<base>/<category>/<package>]:",
+		Message: "Enter the package base [pkg/<base>/<package>]:",
 		Suggest: func(toComplete string) []string {
 			result := make([]string, 0, len(suggestions))
 			for _, candidate := range suggestions {
@@ -47,22 +47,6 @@ func inputPackageBase() (string, error) {
 	base = strings.TrimSpace(sp[0])
 
 	return base, nil
-}
-
-func inputPackageCategory() (string, error) {
-	var category string
-	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the package category [pkg/<base>/<category>/<package>]:",
-	}, &category, survey.WithValidator(survey.Required)); err != nil {
-		return "", err
-	}
-
-	category = strings.TrimSpace(category)
-	if category == "" {
-		return "", fmt.Errorf("invalid packageCategory: %s", category)
-	}
-
-	return category, nil
 }
 
 func inputPackageName() (string, error) {

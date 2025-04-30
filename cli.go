@@ -95,11 +95,6 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						category, err := inputLibraryCategory()
-						if err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
-
 						packageName, err := inputLibraryPackage()
 						if err != nil {
 							return cli.Exit(err.Error(), 1)
@@ -110,7 +105,7 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						path := makeLibraryPath(base, category, packageName)
+						path := makeLibraryPath(base, packageName)
 						if err := createLibraryFile(path, name); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
@@ -125,11 +120,6 @@ var rootCmd = &cli.Command{
 					Description: "Generates a new package within the pkg/ directory. This layer contains\n   the concrete implementations of interfaces defined in the lib/ layer. Packages\n   within pkg/ are typically organized based on the specific technology or external\n   dependency they integrate with (e.g., postgres, redis, zerolog, stripe).\n   This command helps scaffold the necessary directory structure and boilerplate\n   files for the implementation.",
 					Action: func(ctx context.Context, command *cli.Command) error {
 						base, err := inputPackageBase()
-						if err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
-
-						category, err := inputPackageCategory()
 						if err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
@@ -149,7 +139,7 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						path := makePackagePath(base, category, packageName)
+						path := makePackagePath(base, packageName)
 
 						if err := templateWriter(path, packageName); err != nil {
 							return cli.Exit(err.Error(), 1)
