@@ -54,6 +54,10 @@ func isNotExistsK3dConfig() bool {
 }
 
 func saveK3dConfig() error {
+	if err := os.MkdirAll(k8sManifestFolder, os.ModePerm); err != nil {
+		return err
+	}
+
 	f, err := os.Create(getK3dConfigPath())
 	if err != nil {
 		return err
