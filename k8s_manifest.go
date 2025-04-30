@@ -127,7 +127,7 @@ func generateK8sNamespaceFile(namespace string) error {
 		ContactPerson: "your-name",
 	}
 
-	namespaceFilePath := filepath.Join(k8sManifestFolder, k8sNamespaceTemplate)
+	namespaceFilePath := filepath.Join(k8sManifestFolder, k8sNamespaceFile)
 	if err := writeTemplate2File(namespaceFilePath, k8sNamespaceTemplate, namespaceData); err != nil {
 		return err
 	}
