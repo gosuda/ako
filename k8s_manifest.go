@@ -504,13 +504,15 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 	}
 
 	cronJobData := CronJobData{
-		CronJobName:   cmdDepth[len(cmdDepth)-1],
-		Namespace:     namespace,
-		Description:   "Write description here",
-		Schedule:      "*/5 * * * *",
-		Image:         globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
-		Tag:           "latest",
-		RestartPolicy: "OnFailure",
+		CronJobName:       cmdDepth[len(cmdDepth)-1],
+		Namespace:         namespace,
+		Description:       "Write description here",
+		Schedule:          "*/5 * * * *",
+		ContainerName:     cmdDepth[len(cmdDepth)-1] + "-cronjob",
+		Image:             globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
+		Tag:               "latest",
+		RestartPolicy:     "OnFailure",
+		ConcurrencyPolicy: "Forbid",
 	}
 
 	cronJobFilePath := makeK8sManifestFile(k8sEnvRemote, k8sCronJobFile, cmdDepth...)
