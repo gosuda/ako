@@ -141,7 +141,7 @@ var rootCmd = &cli.Command{
 
 						path := makePackagePath(base, packageName)
 
-						if err := templateWriter(path, packageName); err != nil {
+						if err := templateWriter(path, filepath.Base(path)); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
