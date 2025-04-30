@@ -428,7 +428,7 @@ func generateK8sIngressFile(namespace string, appName string) error {
 	}
 
 	ingressFilePath := filepath.Join(k8sManifestFolder, appName, k8sIngressFile)
-	if err := os.MkdirAll(filepath.Base(ingressFilePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(ingressFilePath), 0755); err != nil {
 		return err
 	}
 
