@@ -231,6 +231,30 @@ type K8sDeploymentData struct {
 	SecretEnvVars          []K8sSecretEnvVar
 }
 
+func selectK8sDeploymentTier() (string, error) {
+	choices := []string{
+		"service", "aggregator", "orchestrator", "worker", "middleware", "custom",
+	}
+
+	var selectedTier string
+	if err := survey.AskOne(&survey.Select{
+		Message: "Select the Kubernetes deployment tier:",
+		Options: choices,
+	}, &selectedTier); err != nil {
+		return "", err
+	}
+
+	if selectedTier == "custom" {
+		if err := survey.AskOne(&survey.Input{
+			Message: "Enter the custom tier name:",
+		}, &selectedTier, survey.WithValidator(survey.Required)); err != nil {
+			return "", err
+		}
+	}
+
+	return selectedTier, nil
+}
+
 func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string) error {
 	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
 		return err
@@ -301,6 +325,31 @@ type K8sServiceData struct {
 	ServicePort int
 	TargetPort  int
 	ServiceType string
+}
+
+func generateK8sServiceFile(namespace string, cmdDepth ...string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	serviceData := K8sServiceData{
+		AppName:     cmdDepth[len(cmdDepth)-1],
+		Namespace:   namespace,
+		Description: "Write description here",
+		ServicePort: 80,
+		TargetPort:  8080,
+		ServiceType: "ClusterIP",
+	}
+
+	serviceFilePath := makeK8sManifestFile(k8sEnvRemote, k8sServiceFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Base(serviceFilePath), 0755); err != nil {
+		return err
+	}
+	if err := writeTemplate2File(serviceFilePath, K8sServiceTemplate, serviceData); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const K8sIngressTemplate = `apiVersion: networking.k8s.io/v1

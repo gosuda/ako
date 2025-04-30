@@ -618,7 +618,24 @@ var rootCmd = &cli.Command{
 									return cli.Exit(err.Error(), 1)
 								}
 
-								log.Printf("Created K3D manifest: %s for %s", selectedKind, selectedCmd)
+								cmds := strings.Split(selectedCmd, "/")
+
+								switch selectedKind {
+								case k8sManifestKindDeployment:
+									tier, err := selectK8sDeploymentTier()
+									if err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									if err := generateK8sDeploymentFile(tier, globalConfig.Namespace, cmds...); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									if err := generateK8sServiceFile(globalConfig.Namespace, cmds...); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+								case k8sManifestKindCronJob:
+								}
 
 								return nil
 							},
