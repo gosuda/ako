@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
 )
 
 const (
@@ -26,6 +28,63 @@ const (
 	k8sDaemonSetFile   = "daemonset.yaml"
 	k8sReplicaSetFile  = "replicaset.yaml"
 )
+
+const (
+	kusManifestKindNamespace  = "namespace"
+	k8sManifestKindDeployment = "deployment"
+	k8sManifestKindService    = "service"
+	k8sManifestKindIngress    = "ingress"
+	k8sManifestKindCronJob    = "cronjob"
+	k8sManifestKindPvc        = "pvc"
+	k8sManifestKindConfigMap  = "configmap"
+)
+
+var k8sManifestKindsForCmd = []string{
+	"deployment", "cronjob",
+}
+
+func selectK8sManifestKind() (string, error) {
+	choices := make([]string, len(k8sManifestKindsForCmd))
+	for i, kind := range k8sManifestKindsForCmd {
+		choices[i] = kind
+	}
+
+	var selectedKind string
+	if err := survey.AskOne(&survey.Select{
+		Message: "Select the Kubernetes manifest kind:",
+		Options: choices,
+	}, &selectedKind); err != nil {
+		return "", err
+	}
+
+	return selectedKind, nil
+}
+
+func inputK8sNamespace() (string, error) {
+	var namespace string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the Kubernetes namespace:",
+	}, &namespace, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	namespace = strings.TrimSpace(namespace)
+
+	return namespace, nil
+}
+
+func inputK8sRemoteRegistry() (string, error) {
+	var remoteRegistry string
+	if err := survey.AskOne(&survey.Input{
+		Message: "Enter the remote registry URL:",
+	}, &remoteRegistry, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
+	}
+
+	remoteRegistry = strings.TrimSpace(remoteRegistry)
+
+	return remoteRegistry, nil
+}
 
 func makeK8sManifestFile(env string, typ string, depth ...string) string {
 	l := make([]string, 2+len(depth))
