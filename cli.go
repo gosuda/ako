@@ -666,6 +666,28 @@ var rootCmd = &cli.Command{
 								return nil
 							},
 						},
+						{
+							Name:    "apply",
+							Aliases: []string{"a"},
+							Usage:   "Apply K3D manifest",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								selectedManifests, err := selectK8sManifest()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								for _, manifest := range selectedManifests {
+									log.Printf("Applied K3D manifest: %s", manifest)
+									if err := applyK8sManifest(manifest); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									log.Printf("Applied K3D manifest successfully")
+								}
+
+								return nil
+							},
+						},
 					},
 				},
 			},
