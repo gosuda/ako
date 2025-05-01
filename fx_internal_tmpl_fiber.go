@@ -17,6 +17,7 @@ const (
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,6 +39,7 @@ func ConfigRegister() func() *Config {
 
 type Param struct {
 	fx.In
+	Cfg *Config
 }
 
 type {{.server_name}} struct {
@@ -49,11 +51,17 @@ type Config struct {
 }
 
 func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
-	svr := &{{.server_name}}{}
+	svr := &{{.server_name}}{
+		app: fiber.New(),
+	}
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			svr.app = fiber.New()
+			go func() {
+				if err := svr.app.Listen(param.Cfg.Addr); err != nil {
+					log.Printf("Error starting server: %v\n", err)
+				}
+			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
