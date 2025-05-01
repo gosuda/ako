@@ -33,7 +33,9 @@ import (
 var Register = fx.Provide(New, ConfigRegister())
 
 func ConfigRegister() func() *Config {
-	opts := []grpc.ServerOption{}
+	opts := []grpc.ServerOption{
+		grpc.Creds(insecure.NewCredentials()),
+	}
 
 	return func() *Config {
 		return &Config{
@@ -57,7 +59,7 @@ type Config struct {
 }
 
 func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(param.Cfg.Opts...)
 	svr := &{{.server_name}}{}
 
 	lc.Append(fx.Hook{
