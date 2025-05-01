@@ -115,5 +115,9 @@ func createFxChiFile(path string, name string) error {
 		return fmt.Errorf("getGoModule: %w", err)
 	}
 
+	if err := getGoModule(chiDependencyProxyProtoV2); err != nil {
+		return fmt.Errorf("getGoModule: %w", err)
+	}
+
 	return nil
 }

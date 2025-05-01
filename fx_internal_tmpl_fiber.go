@@ -101,5 +101,9 @@ func createFxFiberFile(path string, name string) error {
 		return fmt.Errorf("getGoModule: %w", err)
 	}
 
+	if err := getGoModule(fiberDependencyProxyProtoV2); err != nil {
+		return fmt.Errorf("getGoModule: %w", err)
+	}
+
 	return nil
 }
