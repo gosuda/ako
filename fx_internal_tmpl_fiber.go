@@ -12,8 +12,9 @@ func init() {
 }
 
 const (
-	fiberDependency     = `github.com/gofiber/fiber/v2`
-	fiberServerTemplate = `package {{.package_name}}
+	fiberDependency             = `github.com/gofiber/fiber/v2`
+	fiberDependencyProxyProtoV2 = `github.com/pires/go-proxyproto`
+	fiberServerTemplate         = `package {{.package_name}}
 
 import (
 	"context"
@@ -21,6 +22,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/pires/go-proxyproto"
 	"go.uber.org/fx"
 )
 
@@ -57,9 +59,16 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			lis, err := net.Listen("tcp", addr)
+			if err != nil {
+				return fmt.Errorf("failed to listen on %s: %w", addr, err)
+			}
+
 			go func() {
-				if err := svr.app.Listen(param.Cfg.Addr); err != nil {
-					log.Printf("Error starting server: %v\n", err)
+				proxyListener := &proxyproto.Listener{Listener: lis}
+				
+				if err := s.app.Listener(proxyListener); err != nil {
+					return fmt.Errorf("failed to set listener: %w", err)
 				}
 			}()
 			return nil
