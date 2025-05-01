@@ -39,7 +39,7 @@ var Register = fx.Provide(New, ConfigRegister())
 func ConfigRegister() func() *Config {
 	return func() *Config {
 		return &Config{
-			Addr: os.Getenv("FIBER_{{.server_name}}_ADDR"),
+			Addr: os.Getenv("CHI_{{.server_name}}_ADDR"),
 		}
 	}
 }
