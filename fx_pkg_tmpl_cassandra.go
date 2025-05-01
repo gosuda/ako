@@ -36,7 +36,7 @@ var Register = fx.Provide(fx.Annotate(New, fx.As()), ConfigRegister())
 // Modify the config according to your needs.
 func ConfigRegister() func() *Config {
 	return func() *Config {
-		host := os.Getenv("CASSANDRA_HOST")
+		host := os.Getenv("CASSANDRA_{{.client_name}}_HOST")
 		if host == "" {
 			host = "127.0.0.1:9042"
 		}
