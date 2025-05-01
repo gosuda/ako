@@ -59,9 +59,9 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			lis, err := net.Listen("tcp", addr)
+			lis, err := net.Listen("tcp", param.Cfg.Addr)
 			if err != nil {
-				return fmt.Errorf("failed to listen on %s: %w", addr, err)
+				return fmt.Errorf("failed to listen on %s: %w", param.Cfg.Addr, err)
 			}
 
 			go func() {
