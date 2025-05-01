@@ -21,7 +21,7 @@ func selectInternalPackageBase() (string, error) {
 	}
 	var base string
 	if err := survey.AskOne(&survey.Select{
-		Message: "Select the internal package type [internal/<base>/<category>/<package>]:",
+		Message: "Select the internal package type [internal/<base>/<package>]:",
 		Options: candidates,
 	}, &base, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
@@ -33,26 +33,10 @@ func selectInternalPackageBase() (string, error) {
 	return base, nil
 }
 
-func inputInternalPackageCategory() (string, error) {
-	var category string
-	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the internal package category [internal/<base>/<category>/<package>]:",
-	}, &category, survey.WithValidator(survey.Required)); err != nil {
-		return "", err
-	}
-
-	category = strings.TrimSpace(category)
-	if category == "" {
-		return "", fmt.Errorf("invalid internal package category: %s", category)
-	}
-
-	return category, nil
-}
-
 func inputInternalPackageName() (string, error) {
 	var packageName string
 	if err := survey.AskOne(&survey.Input{
-		Message: "Enter the internal package name [internal/<base>/<category>/<package>]:",
+		Message: "Enter the internal package name [internal/<base>/<package>]:",
 	}, &packageName, survey.WithValidator(survey.Required)); err != nil {
 		return "", err
 	}
@@ -98,8 +82,8 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 	return &{{.client_name}}{}
 }`
 
-func createInternalPackage(base, category, packageName string) error {
-	dir := filepath.Join("internal", base, category, packageName)
+func createInternalPackage(path, packageName string) error {
+	dir := filepath.Join("internal", path, packageName)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err
 	}

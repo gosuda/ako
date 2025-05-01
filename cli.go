@@ -159,17 +159,14 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						category, err := inputInternalPackageCategory()
-						if err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
-
 						packageName, err := inputInternalPackageName()
 						if err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
-						if err := createInternalPackage(base, category, packageName); err != nil {
+						path := filepath.Join(base, packageName)
+
+						if err := createInternalPackage(filepath.Dir(path), filepath.Base(path)); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
