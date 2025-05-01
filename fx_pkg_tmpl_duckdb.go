@@ -16,10 +16,9 @@ const (
 	duckdbClientTemplate = `package {{.package_name}}
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
-	"strings"
-	"database/sql"
 
 	_ "github.com/marcboeker/go-duckdb/v2"
 	"go.uber.org/fx"
@@ -74,7 +73,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 		},
 	})
 
-	return cli, nil
+	return cli
 }`
 )
 
