@@ -19,12 +19,15 @@ const (
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net"
 	"os"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/pires/go-proxyproto"
 	"go.uber.org/fx"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // Register is the fx.Provide function for the client.
