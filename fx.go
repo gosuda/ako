@@ -55,6 +55,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			return nil
 		},
 	})
+
 	return &{{.client_name}}{}
 }`
 
