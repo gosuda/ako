@@ -33,7 +33,7 @@ func initGoModule(moduleName string) error {
 }
 
 func getGoModule(item string) error {
-	cmd := exec.Command("go", "get", item)
+	cmd := exec.Command("go", "get", "-u", item)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
