@@ -12,8 +12,9 @@ func init() {
 }
 
 const (
-	chiDependency     = `github.com/go-chi/chi/v5`
-	chiServerTemplate = `package {{.package_name}}
+	chiDependency             = `github.com/go-chi/chi/v5`
+	chiDependencyProxyProtoV2 = `github.com/pires/go-proxyproto`
+	chiServerTemplate         = `package {{.package_name}}
 
 import (
 	"context"
@@ -23,6 +24,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/pires/go-proxyproto"
 	"go.uber.org/fx"
 )
 
@@ -71,9 +73,16 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			lis, err := net.Listen("tcp", param.Cfg.Addr)
+			if err != nil {
+				return fmt.Errorf("net.Listen: %w", err)
+			}
+
 			go func() {
-				if err := svr.svr.ListenAndServe(); err != nil {
-					log.Printf("Error starting server: %v\n", err)
+				proxyListener := &proxyproto.Listener{Listener: lis}
+
+				if err := svr.svr.Serve(proxyListener); err != nil {
+					return fmt.Errorf("failed to set listener: %w", err)
 				}
 			}()
 			return nil
