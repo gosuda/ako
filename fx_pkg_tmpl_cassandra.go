@@ -20,6 +20,8 @@ import (
 	"context"
 
 	"go.uber.org/fx"
+	"github.com/gocql/gocql"
+	"github.com/scylladb/gocqlx/v2"
 )
 
 // Register is the fx.Provide function for the client.
