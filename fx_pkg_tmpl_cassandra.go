@@ -18,10 +18,13 @@ const (
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"strings"
 
-	"go.uber.org/fx"
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
+	"go.uber.org/fx"
 )
 
 // Register is the fx.Provide function for the client.
