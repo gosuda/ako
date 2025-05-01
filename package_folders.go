@@ -25,6 +25,9 @@ func inputPackageBase() (string, error) {
 		"logger: Contains implementations for logging interfaces (e.g., using Zerolog, Zap).",
 		"template: Contains implementations for template rendering engines (e.g., HTML templates).",
 		"validation: Contains implementations for data validation logic or integrating with validation libraries.",
+		"analytics: Contains implementations for analytics tracking (e.g., Google Analytics, Mixpanel).",
+		"monitoring: Contains implementations for monitoring and observability (e.g., Prometheus, Grafana).",
+		"transformation: Contains implementations for data transformation or ETL processes. (e.g., converting data formats, duckdb).",
 	}
 	var base string
 	if err := survey.AskOne(&survey.Input{
