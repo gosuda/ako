@@ -61,19 +61,22 @@ type {{.client_name}} struct {
 	conn valkey.Client
 }
 
-func New(ctx context.Context, lc fx.Lifecycle, param Param) (*{{.client_name}}, error) {
-	conn, err := valkey.NewClient(valkey.ClientOption{
-		InitAddress: param.Cfg.Addr,
-		Username:    param.Cfg.Username,
-		Password:    param.Cfg.Password,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("valkey.New: %w", err)
-	}
+func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
+	cli := &{{.client_name}}{}
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			// Initialize the client here if needed
+			conn, err := valkey.NewClient(valkey.ClientOption{
+				InitAddress: param.Cfg.Addr,
+				Username:    param.Cfg.Username,
+				Password:    param.Cfg.Password,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("valkey.New: %w", err)
+			}
+
+			cli.conn = conn
+
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
@@ -83,9 +86,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) (*{{.client_name}}, 
 		},
 	})
 
-	return &{{.client_name}}{
-		conn: conn,
-	}, nil
+	return cli, nil
 }`
 )
 
