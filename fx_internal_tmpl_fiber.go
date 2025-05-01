@@ -68,7 +68,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
 				proxyListener := &proxyproto.Listener{Listener: lis}
 				
 				if err := s.app.Listener(proxyListener); err != nil {
-					return fmt.Errorf("failed to set listener: %w", err)
+					log.Fatalf("failed to start server: %v", err)
 				}
 			}()
 			return nil
