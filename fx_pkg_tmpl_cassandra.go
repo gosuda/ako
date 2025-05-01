@@ -56,6 +56,7 @@ func ConfigRegister() func() *Config {
 
 type Param struct {
 	fx.In
+	Cfg *Config
 }
 
 type Config struct {
