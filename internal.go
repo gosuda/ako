@@ -4,10 +4,22 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 )
+
+var internalControllerTemplateList = map[string]func(string, string) error{}
+
+func getInternalControllerTemplateKeyList() []string {
+	keys := make([]string, 0, len(internalControllerTemplateList))
+	for k := range internalControllerTemplateList {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	return keys
+}
 
 const (
 	internalPackageController = "controller"
@@ -88,14 +100,42 @@ func createInternalPackage(path, packageName string) error {
 		return err
 	}
 
-	structName := strings.ToUpper(packageName[:1]) + packageName[1:]
-	fileName := filepath.Join(dir, fmt.Sprintf(fxFileName, structName))
-	if err := writeTemplate2File(fileName, internalTemplate, map[string]any{
-		"package_name": packageName,
-		"client_name":  structName,
-	}); err != nil {
-		return err
+	switch {
+	case strings.HasPrefix(path, internalPackageController):
+		creator, err := selectInternalControllerPackage()
+		if err != nil {
+			return err
+		}
+
+		if err := creator(dir, packageName); err != nil {
+			return err
+		}
+	default:
+		structName := strings.ToUpper(packageName[:1]) + packageName[1:]
+		fileName := filepath.Join(dir, fmt.Sprintf(fxFileName, structName))
+		if err := writeTemplate2File(fileName, internalTemplate, map[string]any{
+			"package_name": packageName,
+			"client_name":  structName,
+		}); err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+func selectInternalControllerPackage() (func(string, string) error, error) {
+	var packageName string
+	if err := survey.AskOne(&survey.Select{
+		Message: "Select the internal package type [internal/<base>/<package>]:",
+		Options: getInternalControllerTemplateKeyList(),
+	}, &packageName, survey.WithValidator(survey.Required)); err != nil {
+		return nil, err
+	}
+
+	if fn, ok := internalControllerTemplateList[packageName]; ok {
+		return fn, nil
+	}
+
+	return nil, fmt.Errorf("invalid internal package name: %s", packageName)
 }
