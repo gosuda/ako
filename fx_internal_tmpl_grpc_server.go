@@ -84,7 +84,8 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.server_name}} {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			return grpcServer.Stop()
+			grpcServer.GracefulStop()
+			return nil
 		},
 	})
 
