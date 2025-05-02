@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+func init() {
+	internalControllerTemplateList["empty"] = createFxStructFile
+}
+
 const (
 	fxFileName          = "init_%s.go"
 	fxDependencyPackage = "go.uber.org/fx"
