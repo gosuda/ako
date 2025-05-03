@@ -81,7 +81,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 		},
 		OnStop: func(ctx context.Context) error {
 			// Clean up resources if needed
-			conn.Close()
+			cli.conn.Close()
 			return nil
 		},
 	})
