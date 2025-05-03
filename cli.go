@@ -48,6 +48,14 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := createGolangcilintConfig(); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := installGolangcilint(); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				if err := generateCommitMessageRule(); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -321,6 +329,18 @@ var rootCmd = &cli.Command{
 						return nil
 					},
 				},
+			},
+		},
+		{
+			Name:    "linter",
+			Aliases: []string{"l"},
+			Usage:   "Run linter",
+			Action: func(ctx context.Context, command *cli.Command) error {
+				if err := runGolangcilint(); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				return nil
 			},
 		},
 		{
