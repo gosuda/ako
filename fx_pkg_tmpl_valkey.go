@@ -72,7 +72,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 				Password:    param.Cfg.Password,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("valkey.New: %w", err)
+				return fmt.Errorf("valkey.New: %w", err)
 			}
 
 			cli.conn = conn
@@ -86,7 +86,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 		},
 	})
 
-	return cli, nil
+	return cli
 }`
 )
 
