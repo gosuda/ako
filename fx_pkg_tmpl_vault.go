@@ -77,7 +77,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 				return err
 			}
 
-			switch len(param.Cfg.token) {
+			switch len(param.Cfg.Token) {
 			case 0:
 				resp, err := client.Auth.AppRoleLogin(ctx, schema.AppRoleLoginRequest{
 					RoleId:   param.Cfg.RoleId,
