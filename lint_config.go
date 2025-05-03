@@ -1,8 +1,6 @@
 package main
 
-const golangcilintConfig = `
-# See the dedicated "version" documentation section.
-version: "2"
+const golangcilintConfig = `version: "2"
 linters:
   default: all
   enable:
@@ -130,7 +128,7 @@ linters:
         linters:
           - forbidigo
     paths:
-      - ".*\\lib\\adapter\\gen\\.go$"
+      - ".*/lib/adapter/gen/*.go$"
 formatters:
   enable:
     - gci
@@ -141,7 +139,7 @@ formatters:
   exclusions:
     generated: lax
     paths:
-      - ".*\\lib\\adapter\\gen\\.go$"
+      - ".*/lib/adapter/gen/*.go$"
 issues:
   max-issues-per-linter: 50
   max-same-issues: 3
