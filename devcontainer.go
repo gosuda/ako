@@ -56,6 +56,8 @@ RUN go env -w GOSUMDB=off
 RUN go env -w GOPRIVATE=*.mycompany.com
 RUN go env -w GONOSUMDB=*.mycompany.com
 
+RUN go install github.com/gosuda/ako@latest
+
 WORKDIR /workspace
 
 CMD ["/bin/sh", "-c", "while true; do sleep 30; done;"]
