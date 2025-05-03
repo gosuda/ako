@@ -28,6 +28,7 @@ func inputPackageBase() (string, error) {
 		"analytics: Contains implementations for analytics tracking (e.g., Google Analytics, Mixpanel).",
 		"monitoring: Contains implementations for monitoring and observability (e.g., Prometheus, Grafana).",
 		"transformation: Contains implementations for data transformation or ETL processes. (e.g., converting data formats, duckdb).",
+		"storage: Contains implementations for storing and retrieving data from persistent storage.",
 	}
 	var base string
 	if err := survey.AskOne(&survey.Input{
