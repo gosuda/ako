@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["vault"] = createFxVaultFile
+	pkgTemplateList["[Storage] vault"] = createFxVaultFile
 }
 
 const (

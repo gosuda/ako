@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["cassandra"] = createFxCassandraFile
+	pkgTemplateList["[NoSQL/Columnar] cassandra"] = createFxCassandraFile
 }
 
 const (

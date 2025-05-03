@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["qdrant"] = createFxQdrantFile
+	pkgTemplateList["[VectorDB] qdrant"] = createFxQdrantFile
 }
 
 const (

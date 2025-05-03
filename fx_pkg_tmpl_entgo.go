@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["ent (sqlite, mysql, postgresql)"] = createFxEntgoFile
+	pkgTemplateList["[SQL/ORM] ent (sqlite, mysql, postgresql)"] = createFxEntgoFile
 }
 
 const (

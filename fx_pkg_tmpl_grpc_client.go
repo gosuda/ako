@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["grpc client"] = createFxGrpcClientFile
+	pkgTemplateList["[Grpc] grpc client"] = createFxGrpcClientFile
 }
 
 const (

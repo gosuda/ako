@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	internalControllerTemplateList["chi (http, https)"] = createFxChiFile
+	internalControllerTemplateList["[Http/Muxer] chi"] = createFxChiFile
 }
 
 const (

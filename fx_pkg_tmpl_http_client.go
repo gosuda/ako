@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["http client"] = createFxHttpClientFile
+	pkgTemplateList["[Http] http client"] = createFxHttpClientFile
 }
 
 const (

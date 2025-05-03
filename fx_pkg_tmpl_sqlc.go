@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["sqlc (mysql, postgresql)"] = createFxSqlcFile
+	pkgTemplateList["[SQL/Generation] sqlc (mysql, postgresql, postgis, pgvector)"] = createFxSqlcFile
 }
 
 const (

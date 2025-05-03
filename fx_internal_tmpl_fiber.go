@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	internalControllerTemplateList["fiber (http, https)"] = createFxFiberFile
+	internalControllerTemplateList["[Http/Framework] fiber"] = createFxFiberFile
 }
 
 const (

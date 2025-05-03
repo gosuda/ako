@@ -9,7 +9,7 @@ import (
 )
 
 var pkgTemplateList = map[string]func(string, string) error{
-	"plain": createFxStructFile,
+	"[Plain] empty structure": createFxStructFile,
 }
 
 func getPkgTemplateKeyList() []string {

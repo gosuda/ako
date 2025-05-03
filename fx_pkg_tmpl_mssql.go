@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["mssql"] = createFxMSSQLFile
+	pkgTemplateList["[SQL] mssql"] = createFxMSSQLFile
 }
 
 const (

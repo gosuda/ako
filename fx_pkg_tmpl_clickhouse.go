@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["clickhouse"] = createClickhouseStructFile
+	pkgTemplateList["[NoSQL/Columnar] clickhouse"] = createClickhouseStructFile
 }
 
 const (

@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["nats"] = createFxNatsFile
+	pkgTemplateList["[MessageQueue] nats"] = createFxNatsFile
 }
 
 const (

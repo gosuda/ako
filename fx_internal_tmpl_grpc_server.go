@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	internalControllerTemplateList["grpc server"] = createFxGrpcFile
+	internalControllerTemplateList["[Grpc/Server] grpc server"] = createFxGrpcFile
 }
 
 const (

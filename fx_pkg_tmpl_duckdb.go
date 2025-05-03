@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["duckdb"] = createFxDuckDBFile
+	pkgTemplateList["[Analyze/Transform] duckdb"] = createFxDuckDBFile
 }
 
 const (

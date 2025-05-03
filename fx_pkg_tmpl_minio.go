@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["minio (s3 compatible)"] = createFxMinioFile
+	pkgTemplateList["[Storage] minio (s3 compatible)"] = createFxMinioFile
 }
 
 const (
