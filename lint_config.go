@@ -14,7 +14,6 @@ linters:
     - copyloopvar
     - cyclop
     - decorder
-    - depguard
     - dogsled
     - durationcheck
     - err113
@@ -23,7 +22,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exhaustruct
     - exptostd
     - fatcontext
     - forbidigo
@@ -32,7 +30,6 @@ linters:
     - funlen
     - ginkgolinter
     - gocheckcompilerdirectives
-    - gochecknoglobals
     - gochecknoinits
     - gochecksumtype
     - gocognit
@@ -109,6 +106,9 @@ linters:
   disable:
     - dupl
     - dupword
+	- exhaustruct
+	- depguard
+	- gochecknoglobals
   exclusions:
     generated: lax
     warn-unused: true
