@@ -31,6 +31,7 @@ COMMANDS:
    init, i    Initialize a new Go module and Git repository
    go, g      Organize Go project
    branch, b  Organize Git branches and commits
+   linter, l  Run linter
    k3d, k     Manage K3S manifests and clusters
    help, h    Shows a list of commands or help for one command
 
