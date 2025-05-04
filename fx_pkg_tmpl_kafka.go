@@ -42,24 +42,36 @@ func ConfigRegister() func() *Config {
 			brokers = "localhost:9092"
 		}
 
+		const (
+			ProducerMaxRetries       = 5
+			ProducerFlushFrequency   = 750 * time.Millisecond
+			ProducerFlushMaxMessages = 1000
+			ProducerFlushBytes       = 1024 * 1024 * 10
+			ProducerFlushMessages    = 1000
+			ProducerMaxMessageBytes  = 1024 * 1024 * 10
+			ProducerRetryBackoff     = 200 * time.Millisecond
+			ProducerTimeout          = 3 * time.Second
+			NetKeepAlive             = 15 * time.Second
+		)
+
 		conf := sarama.NewConfig()
 		conf.Version = sarama.V2_8_0_0
 		conf.ClientID = os.Getenv("KAFKA_{{.client_name}}_CLIENT_ID")
 		conf.Producer.Return.Successes = true
 		conf.Producer.Return.Errors = true
 		conf.Producer.RequiredAcks = sarama.WaitForLocal
-		conf.Producer.Retry.Max = 5
+		conf.Producer.Retry.Max = ProducerMaxRetries
 		conf.Producer.Partitioner = sarama.NewRandomPartitioner
-		conf.Producer.Flush.Frequency = 750 * time.Millisecond
-		conf.Producer.Flush.MaxMessages = 1000
-		conf.Producer.Flush.Bytes = 1024 * 1024 * 10
-		conf.Producer.Flush.Messages = 1000
-		conf.Producer.MaxMessageBytes = 1024 * 1024 * 10
-		conf.Producer.Retry.Backoff = 200 * time.Millisecond
-		conf.Producer.Timeout = 3 * time.Second
+		conf.Producer.Flush.Frequency = ProducerFlushFrequency
+		conf.Producer.Flush.MaxMessages = ProducerFlushMaxMessages
+		conf.Producer.Flush.Bytes = ProducerFlushBytes
+		conf.Producer.Flush.Messages = ProducerFlushMessages
+		conf.Producer.MaxMessageBytes = ProducerMaxMessageBytes
+		conf.Producer.Retry.Backoff = ProducerRetryBackoff
+		conf.Producer.Timeout = ProducerTimeout
 		conf.Consumer.IsolationLevel = sarama.ReadCommitted
 		conf.Consumer.Offsets.AutoCommit.Enable = false
-		conf.Net.KeepAlive = 15 * time.Second
+		conf.Net.KeepAlive = NetKeepAlive
 
 		return &Config{
 			Brokers: strings.Split(brokers, ","),
