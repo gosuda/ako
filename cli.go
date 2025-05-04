@@ -650,8 +650,16 @@ var rootCmd = &cli.Command{
 									if err := generateK8sServiceFile(globalConfig.Namespace, cmds...); err != nil {
 										return cli.Exit(err.Error(), 1)
 									}
+
+									if err := generateK8sConfigMap(globalConfig.Namespace, cmds...); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
 								case k8sManifestKindCronJob:
 									if err := generateK8sCronJobFile(globalConfig.Namespace, cmds...); err != nil {
+										return cli.Exit(err.Error(), 1)
+									}
+
+									if err := generateK8sConfigMap(globalConfig.Namespace, cmds...); err != nil {
 										return cli.Exit(err.Error(), 1)
 									}
 								}
