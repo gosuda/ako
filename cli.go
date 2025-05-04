@@ -56,6 +56,15 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				ciTemplate, err := selectCITemplate()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := createCITemplate(ciTemplate); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				if err := generateCommitMessageRule(); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
