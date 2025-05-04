@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	pkgTemplateList["[Cache] valkey"] = createFxValkeyFile
+	pkgTemplateList["[Cache/Valkey] valkey"] = createFxValkeyFile
 }
 
 const (
