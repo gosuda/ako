@@ -3,7 +3,7 @@ package main
 import "os"
 
 func init() {
-	ciTemplates["gitlab actions"] = createGitlabCICDConfig
+	ciTemplates["github actions"] = createGitlabCICDConfig
 }
 
 const (
