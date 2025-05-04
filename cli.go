@@ -24,6 +24,11 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				ciTemplate, err := selectCITemplate()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				if err := initGoModule(moduleName); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -53,11 +58,6 @@ var rootCmd = &cli.Command{
 				}
 
 				if err := installGolangcilint(); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
-
-				ciTemplate, err := selectCITemplate()
-				if err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
 
