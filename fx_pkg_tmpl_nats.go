@@ -12,17 +12,21 @@ func init() {
 }
 
 const (
-	natsDependency     = `github.com/nats-io/nats.go`
-	natsClientTemplate = `package {{.package_name}}
+	natsDependency         = `github.com/nats-io/nats.go`
+	natsDependencyErrgroup = `golang.org/x/sync/errgroup`
+	natsClientTemplate     = `package {{.package_name}}
 
 import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
 )
 
 // Register is the fx.Provide function for the client.
@@ -84,16 +88,78 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 
 			cli.conn = conn
 
+			go cli.watch()
+
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
+			eg := errgroup.Group{}
+			eg.Go(func() error {
+				if err := cli.conn.Drain(); err != nil {
+					return fmt.Errorf("nats.Drain: %w", err)
+				}
+				return nil
+			})
+			eg.Go(func() error {
+				if err := cli.conn.Flush(); err != nil {
+					return fmt.Errorf("nats.Flush: %w", err)
+				}
+				return nil
+			})
+			if err := eg.Wait(); err != nil {
+				return fmt.Errorf("nats.Wait: %w", err)
+			}
 			cli.conn.Close()
 			return nil
 		},
 	})
 
 	return cli
-}`
+}
+
+func (c *{{.client_name}}) watch() {
+	const (
+		initDelay = 200 * time.Millisecond
+		maxBackoff = 5 * time.Second
+		backoffFactor = 2
+	)
+
+	delay := initDelay
+	ticker := time.NewTicker(delay)
+	defer ticker.Stop()
+
+	setDelay := func() {
+		delay *= backoffFactor
+		if delay > maxBackoff {
+		delay = maxBackoff
+		}
+		ticker.Reset(delay)
+	}
+
+	resetDelay := func() {
+		delay = initDelay
+		ticker.Reset(delay)
+	}
+
+	for range ticker.C {
+		if c.conn.IsConnected() {
+			setDelay()
+			break
+		}
+
+		if c.conn.IsReconnecting() {
+			setDelay()
+			continue
+		}
+
+		if err := c.conn.ForceReconnect(); err != nil {
+			log.Printf("ForceReconnect: %v", err)
+		}
+
+		resetDelay()
+	}
+}
+`
 )
 
 func createFxNatsFile(path string, name string) error {
@@ -112,6 +178,10 @@ func createFxNatsFile(path string, name string) error {
 	}
 
 	if err := getGoModule(natsDependency); err != nil {
+		return fmt.Errorf("getGoModule: %w", err)
+	}
+
+	if err := getGoModule(natsDependencyErrgroup); err != nil {
 		return fmt.Errorf("getGoModule: %w", err)
 	}
 
