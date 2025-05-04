@@ -16,7 +16,6 @@ linters:
     - decorder
     - dogsled
     - durationcheck
-    - err113
     - errcheck
     - errchkjson
     - errname
@@ -53,7 +52,6 @@ linters:
     - interfacebloat
     - intrange
     - ireturn
-    - lll
     - loggercheck
     - maintidx
     - makezero
@@ -106,9 +104,11 @@ linters:
   disable:
     - dupl
     - dupword
-	- exhaustruct
-	- depguard
-	- gochecknoglobals
+    - exhaustruct
+    - depguard
+    - gochecknoglobals
+    - err113
+    - lll
   exclusions:
     generated: lax
     warn-unused: true
