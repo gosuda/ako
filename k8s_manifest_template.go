@@ -587,3 +587,63 @@ type K8sPvcData struct {
 	VolumeName       string
 	SelectorLabels   map[string]string
 }
+
+type K8sConfigMapData struct {
+	Name      string
+	Namespace string
+	Labels    map[string]string
+	Data      map[string]string
+}
+
+const k8sConfigMapTemplate = `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Name }}
+  {{- if .Namespace }}
+  namespace: {{ .Namespace }}
+  {{- end }}
+  {{- if .Labels }}
+  labels:
+    {{- range $key, $value := .Labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+data:
+  {{- range $key, $value := .Data }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+`
+
+func generateK8sConfigMap(namespace string, cmdDepth ...string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	configMapData := K8sConfigMapData{
+		Name:      cmdDepth[len(cmdDepth)-1],
+		Namespace: namespace,
+		Labels:    map[string]string{"app": cmdDepth[len(cmdDepth)-1]},
+		Data:      map[string]string{"key": "value", "loopback": "127.0.0.1"},
+	}
+
+	configMapFilePath := makeK8sManifestFile(k8sEnvRemote, k8sConfigMapFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Dir(configMapFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(configMapFilePath, k8sConfigMapTemplate, configMapData); err != nil {
+		return err
+	}
+
+	configMapData.Namespace = ""
+	configMapFilePath = makeK8sManifestFile(k8sEnvLocal, k8sConfigMapFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Dir(configMapFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(configMapFilePath, k8sConfigMapTemplate, configMapData); err != nil {
+		return err
+	}
+
+	return nil
+}
