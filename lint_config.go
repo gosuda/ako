@@ -95,7 +95,6 @@ linters:
     - unused
     - usestdlibvars
     - usetesting
-    - varnamelen
     - wastedassign
     - whitespace
     - wrapcheck
@@ -109,6 +108,7 @@ linters:
     - gochecknoglobals
     - err113
     - lll
+    - varnamelen
   exclusions:
     generated: lax
     warn-unused: true
