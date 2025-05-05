@@ -17,16 +17,16 @@ stages:
 lint_job:
   stage: lint
   script:
-    - echo "린팅을 시작합니다..."
+    - echo "Stsarting linting..."
     - go tool golangci-lint run
-    - echo "린팅 완료."
+    - echo "Linting completed."
 
 test_job:
   stage: test
   script:
-    - echo "테스트를 시작합니다..."
+    - echo "Starting tests..."
     - go test ./...
-    - echo "테스트 완료."
+    - echo "Tests completed."
 `
 )
 
