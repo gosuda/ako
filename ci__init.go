@@ -8,7 +8,11 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
-var ciTemplates = map[string]func(name string) error{}
+var ciTemplates = map[string]func(name string) error{
+	"nothing": func(name string) error {
+		return nil
+	},
+}
 
 func selectCITemplate() (string, error) {
 	candidates := make([]string, 0, len(ciTemplates))
