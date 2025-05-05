@@ -76,7 +76,7 @@ Starting and continuously managing Go projects often involves the following inef
 
 ### Prerequisites
 
-* [Go 1.18+](https://go.dev/dl/)
+* [Go 1.24+](https://go.dev/dl/)
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
 * [K3d](https://k3d.io/#installation) (Optional)

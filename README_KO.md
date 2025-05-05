@@ -76,7 +76,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
 
 ### 사전 요구 사항
 
-* [Go 1.18+](https://go.dev/dl/)
+* [Go 1.24+](https://go.dev/dl/)
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
 * [K3d](https://k3d.io/#installation) (선택 사항)
