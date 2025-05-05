@@ -209,4 +209,4 @@ This README is translated into Korean. You can find the Korean version [here](RE
 
 ## References
 
-This readme is written by Gemini Pro and Me.
+This readme is written by Gemini and Me.
