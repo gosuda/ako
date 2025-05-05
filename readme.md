@@ -7,6 +7,14 @@
 - [K3D](https://k3d.io/) if you use K3S
 - [Docker](https://docs.docker.com/get-docker/) if you use K3S
 - [Kubernetes](https://kubernetes.io/docs/setup/) if you use K3S
+- Any IDE or editor that supports Go and LLM, such as:
+  - [GoLand](https://www.jetbrains.com/go/)
+  - [VSCode](https://code.visualstudio.com/)
+  - [Vim](https://www.vim.org/)
+  - [Neovim](https://neovim.io/)
+  - [Cursor](https://cursor.so/)
+  - [Github Copilot](https://github.com/features/copilot)
+  - [Gemini Code Assist](https://codeassist.google/)
 
 ## Installation
 
