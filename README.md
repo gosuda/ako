@@ -202,3 +202,7 @@ Fx-based templates selectable when running `ako go internal` and `ako go pkg`.
 ## License
 
 MIT License. See the `LICENSE` file for details.
+
+## Translation
+
+This README is translated into Korean. You can find the Korean version [here](README_KO.md).
