@@ -80,7 +80,7 @@ Starting and continuously managing Go projects often involves the following inef
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
 * [K3d](https://k3d.io/#installation) (Optional)
-* [Buf](https://buf.build/docs/installation) (Optional)
+* [Buf](https://buf.build/docs/installation) (Built-in)
 
 ### Installation
 

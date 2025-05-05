@@ -80,7 +80,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
 * [K3d](https://k3d.io/#installation) (선택 사항)
-* [Buf](https://buf.build/docs/installation) (선택 사항)
+* [Buf](https://buf.build/docs/installation) (내장됨)
 
 ### 설치
 
