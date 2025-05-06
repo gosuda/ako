@@ -68,7 +68,7 @@ Starting and continuously managing Go projects often involves the following inef
 
 * Standardization: Aims to increase code consistency, facilitate collaboration within and between teams, and reduce long-term maintenance costs by presenting a well-defined project structure and development workflow. This reduces the cognitive load on developers.
 * Developer Experience: Helps developers focus more time and energy on core logic development that creates actual business value by automating cumbersome and error-prone tasks like project initialization, repetitive code writing, and complex Git and K3d management.
-* Opinionated: Instead of "How should I do this?", it proposes clear and specific development methods based on industry-proven best practices like layered structure, Conventional Commits, and K3d-based local environments. This reduces the fatigue of technical decision-making and supports rapid development speed.
+* Opinionated: Instead of "How should I do this?", it proposes clear and specific development methods like layered structure, Conventional Commits, and K3d-based local environments. This reduces the fatigue of technical decision-making and supports rapid development speed.
 * Cloud-Native Ready: Provides default support for API design using Protobuf, containerization via Docker, and local Kubernetes environments using K3d, enabling the configuration of projects optimized for development and deployment in modern cloud environments from the start.
 * Efficiency: Seeks to maximize overall development productivity by eliminating inefficiencies and accelerating tasks at each stage of the development lifecycle (initial setup, coding, branch management, testing, deployment).
 
