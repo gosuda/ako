@@ -49,7 +49,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
         * 역할: `lib/`에 정의된 인터페이스의 구체적인 구현체가 위치합니다. 실제 데이터베이스 연동 로직, 외부 API 호출 로직, 특정 알고리즘 구현 등 인프라스트럭처 및 외부 라이브러리와 관련된 코드가 포함됩니다.
         * 특징: `lib/`의 인터페이스를 구현하며, 필요시 다른 `lib/` 정의를 사용하기 위해 `lib/`에 의존할 수 있습니다. 하지만 `internal`이나 `cmd`에는 의존하지 않습니다. `pkg` 내의 다른 구현체 패키지에 직접 의존하는 대신, 필요한 의존성은 `cmd`에서 주입받는 것을 원칙으로 합니다. 구현 방식(예: `postgres`, `redis`, `kafka`)을 기준으로 하위 디렉토리를 구성합니다.
         * `ako go pkg` (`ako g p`): 특정 기술 스택(예: `redis`, `sqlc`)에 대한 Fx 모듈 기반의 구현체 템플릿 생성을 지원하여, 반복적인 설정 및 코드 작성을 줄여줍니다.
-    * **`internal/` (비즈니스 로직 구성 계층)**:
+    * **`internal/` (비즈니스 로जिक 구성 계층)**:
         * 역할: 애플리케이션의 핵심 비즈니스 로직을 구성합니다. 외부 요청 처리, 비즈니스 규칙 적용, 데이터 처리 흐름 제어 등을 담당하며, 주로 `controller`와 `service` 하위 디렉토리로 나뉩니다.
         * 특징: `lib/`에 정의된 인터페이스를 사용하여 로직 흐름을 구성하며, `pkg/`나 `cmd/`에 직접 의존하지 않습니다. Go의 `internal` 디렉토리 특성상 외부 프로젝트에서 직접 임포트할 수 없습니다.
         * **`internal/controller/`**: 외부 요청(HTTP, gRPC 등)을 받아 처리하고, 적절한 `service`를 호출하며, 결과를 외부 시스템이 이해할 수 있는 형태로 변환하여 응답합니다. 요청/응답 처리 및 흐름 제어의 시작점입니다. `internal/service` 및 `lib`에 의존합니다.
@@ -92,11 +92,33 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
     * `ako init` 시 생성되는 `.golangcilint.yaml` 파일을 수정하여 프로젝트의 필요에 맞게 린터 규칙을 활성화/비활성화하거나 설정을 변경하는 등 사용자 정의할 수 있습니다. 사용 가능한 린터 및 설정 옵션은 [golangci-lint 공식 문서](https://golangci-lint.run/usage/linters/)를 참고하세요.
 
 5.  단순화된 로컬 K3d 환경 관리 (`ako k3d` / `ako k`):
-    * K3d 레지스트리 및 클러스터 생성/삭제/조회 (`ako k3d registry`, `ako k3d cluster`)를 간단한 명령으로 자동화하여 로컬 쿠버네티스 인프라 구축의 복잡성을 제거합니다.
-    * `ako k3d manifest init` (`ako k m i`)으로 프로젝트에 맞는 K8s 네임스페이스, 인그레스 등 기본 매니페스트 설정을 초기화합니다.
-    * `ako k3d manifest create` (`ako k m c`)로 `cmd` 애플리케이션에 필요한 Deployment, Service, ConfigMap 등 매니페스트 파일을 자동으로 생성합니다.
-    * `ako k3d manifest build` (`ako k m b`)로 애플리케이션의 Docker 이미지를 빌드하여 로컬 K3d 레지스트리에 푸시하고, `ako k3d manifest apply` (`ako k m a`)로 클러스터에 간편하게 배포할 수 있습니다.
-    * `ako k3d manifest get` (`ako k m g`)을 통해 `kubectl get` 명령 결과를 쉽게 확인하여 배포 상태 모니터링을 용이하게 합니다.
+    * `ako`는 로컬 쿠버네티스 개발 환경 구축 및 관리를 위한 워크플로우를 제공합니다.
+    * **K3d 클러스터 및 레지스트리 관리**:
+        * `ako k3d cluster create/delete/list` (`ako k c c/d/l`): K3d 클러스터를 쉽게 생성, 삭제, 조회할 수 있습니다. 클러스터 생성 시 사용할 로컬 레지스트리를 지정할 수 있습니다.
+        * `ako k3d registry create/delete/list` (`ako k r c/d/l`): 개발용 로컬 Docker 레지스트리를 K3d 환경 내에 생성, 삭제, 조회합니다.
+        * `ako k3d cluster append-port` (`ako k c a`): 생성된 클러스터의 로드밸런서에 포트 포워딩 규칙을 추가합니다.
+    * **쿠버네티스 매니페스트 관리 워크플로우**:
+        * **초기화 (`ako k3d manifest init` / `ako k m i`)**:
+            * 대상 K3d 클러스터와 사용할 로컬 레지스트리를 선택합니다.
+            * 애플리케이션을 배포할 쿠버네티스 네임스페이스를 입력받습니다.
+            * (선택 사항) 운영 환경 등에서 사용할 원격 레지스트리 주소를 입력받습니다.
+            * 입력된 정보(클러스터, 네임스페이스, 로컬/원격 레지스트리)를 프로젝트 설정 파일(`manifests/k3d_config.yaml`)에 저장합니다.
+            * 지정된 네임스페이스에 대한 기본 매니페스트 파일(`namespace.yaml`)과 공용/사설 접근을 위한 기본 인그레스 매니페스트(`ingress-public.yaml`, `ingress-private.yaml`)를 생성합니다.
+        * **생성 (`ako k3d manifest create` / `ako k m c`)**:
+            * `cmd/` 디렉토리 아래에 정의된 애플리케이션(실행 파일) 중 하나를 선택합니다.
+            * 생성할 매니페스트 종류(Deployment 또는 CronJob)를 선택합니다.
+            * 선택된 애플리케이션 경로(예: `cmd/api/auth`)를 기반으로 `deployments/manifests/` 아래에 동일한 구조의 디렉토리(예: `deployments/manifests/api/auth`)를 생성하고, 해당 애플리케이션을 위한 쿠버네티스 매니페스트 파일들(Deployment/CronJob, Service, ConfigMap 등)을 자동으로 생성합니다. 네임스페이스는 `init` 단계에서 설정된 값을 사용합니다.
+        * **빌드 (`ako k3d manifest build` / `ako k m b`)**:
+            * `cmd/` 아래의 애플리케이션 중 하나를 선택합니다.
+            * 해당 애플리케이션의 Dockerfile을 사용하여 Docker 이미지를 빌드합니다.
+            * 빌드된 이미지를 `init` 단계에서 설정한 로컬 K3d 레지스트리에 푸시합니다. 이미지 태그는 로컬 레지스트리 주소를 포함하여 생성됩니다 (예: `k3d-my-registry.localhost:5000/api-server:latest`).
+            * 이 이미지는 로컬 K3d 클러스터 내에서 매니페스트를 통해 참조될 수 있습니다.
+        * **적용 (`ako k3d manifest apply` / `ako k m a`)**:
+            * `deployments/manifests/` 아래에 생성된 매니페스트 파일 목록을 보여주고, 사용자가 배포할 파일을 하나 이상 선택할 수 있도록 합니다.
+            * 선택된 각 매니페스트 파일에 대해 `kubectl apply -f <파일경로>` 명령을 순차적으로 실행하여, K3d 클러스터에 리소스를 생성하거나 업데이트합니다.
+        * **조회 (`ako k3d manifest get` / `ako k m g`)**:
+            * `pods`, `services`, `deployments`, `ingress` 등 자주 확인하는 쿠버네티스 리소스 타입을 선택하여 `kubectl get <리소스>` 명령을 간편하게 실행하고 결과를 보여줍니다.
+    * 이 워크플로우를 통해 개발자는 복잡한 `kubectl` 명령이나 매니페스트 파일 구조에 대한 깊은 이해 없이도 로컬 환경에서 컨테이너화된 애플리케이션을 쉽게 빌드, 배포, 테스트할 수 있습니다.
 
 ## `ako`의 지향점 (Philosophy)
 
