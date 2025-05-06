@@ -610,7 +610,7 @@ metadata:
   {{- end }}
 data:
   {{- range $key, $value := .Data }}
-  {{ $key }}: {{ $value }}
+  {{ $key }}: {{ quote $value }}
   {{- end }}
 `
 
