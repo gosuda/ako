@@ -214,6 +214,7 @@ func selectK8sDeploymentTier() (string, error) {
 		"aggregator: Routes user requests to services, aggregates results.",
 		"orchestrator: Manages complex workflows or transactions across multiple services.",
 		"worker: Performs asynchronous tasks, usually received via services.",
+		"middleware: Acts as a bridge between different services or systems.",
 		"custom: A user-defined role. Requires specific description from the user.",
 	}
 
