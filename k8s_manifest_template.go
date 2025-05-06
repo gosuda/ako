@@ -225,6 +225,9 @@ func selectK8sDeploymentTier() (string, error) {
 		return "", err
 	}
 
+	sp := strings.Split(strings.TrimSpace(selectedTier), ":")
+	selectedTier = strings.TrimSpace(sp[0])
+
 	if selectedTier == "custom" {
 		if err := survey.AskOne(&survey.Input{
 			Message: "Enter the custom tier name:",
