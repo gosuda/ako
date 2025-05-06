@@ -29,6 +29,11 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				loggerLibrary, err := selectLoggerLibrary()
+				if err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				if err := initGoModule(moduleName); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -50,6 +55,10 @@ var rootCmd = &cli.Command{
 				}
 
 				if err := generateDevContainerFile(filepath.Base(moduleName)); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := createLoggerWriterFile(loggerLibrary); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
 
