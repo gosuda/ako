@@ -175,6 +175,13 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .AppName }}-configmap
+      volumes:
+            - name: user-api-volume
+              emptyDir:
+                medium: "Memory"
+            #- name: user-api-pvc
+            #  persistentVolumeClaim:
+            #    claimName: user-api-pvc
 `
 
 type K8sResourceRequirements struct {
@@ -448,6 +455,13 @@ spec:
             - configMapRef:
                 name: {{ .CronJobName }}-configmap
           restartPolicy: {{ .RestartPolicy }}
+          volumes:
+            - name: user-api-volume
+              emptyDir:
+                medium: "Memory"
+            #- name: user-api-pvc
+            #  persistentVolumeClaim:
+            #    claimName: user-api-pvc
   successfulJobsHistoryLimit: {{ .SuccessfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ .FailedJobsHistoryLimit }}
   concurrencyPolicy: {{ .ConcurrencyPolicy }}
