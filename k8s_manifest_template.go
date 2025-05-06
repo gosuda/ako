@@ -210,7 +210,11 @@ type K8sDeploymentData struct {
 
 func selectK8sDeploymentTier() (string, error) {
 	choices := []string{
-		"service", "aggregator", "orchestrator", "worker", "middleware", "custom",
+		"service: Handles specific business logic, often part of a larger request.",
+		"aggregator: Routes user requests to services, aggregates results.",
+		"orchestrator: Manages complex workflows or transactions across multiple services.",
+		"worker: Performs asynchronous tasks, usually received via services.",
+		"custom: A user-defined role. Requires specific description from the user.",
 	}
 
 	var selectedTier string
