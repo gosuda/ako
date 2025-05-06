@@ -389,7 +389,7 @@ var rootCmd = &cli.Command{
 							Aliases: []string{"d", "rm"},
 							Usage:   "Delete a K3D registry",
 							Action: func(ctx context.Context, command *cli.Command) error {
-								selected, err := selectK3dRegistryName()
+								selected, err := selectK3dRegistryNames()
 								if err != nil {
 									return cli.Exit(err.Error(), 1)
 								}
@@ -459,7 +459,7 @@ var rootCmd = &cli.Command{
 									return cli.Exit(err.Error(), 1)
 								}
 
-								registryData, err := selectK3dRegistryForCluster()
+								registryData, err := selectK3dRegistryName()
 								if err != nil {
 									return cli.Exit(err.Error(), 1)
 								}

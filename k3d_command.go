@@ -31,7 +31,7 @@ func inputK3dRegistryName() (string, error) {
 	return name, nil
 }
 
-func selectK3dRegistryName() ([]string, error) {
+func selectK3dRegistryNames() ([]string, error) {
 	registries, err := getK3dRegistries()
 	if err != nil {
 		return nil, err
@@ -56,6 +56,32 @@ func selectK3dRegistryName() ([]string, error) {
 
 	if len(selected) == 0 {
 		return nil, fmt.Errorf("no registries selected")
+	}
+
+	return selected, nil
+}
+
+func selectK3dRegistryName() (string, error) {
+	registries, err := getK3dRegistries()
+	if err != nil {
+		return "", err
+	}
+
+	candidates := make([]string, 0, len(registries))
+	for _, registry := range registries {
+		candidates = append(candidates, registry.Name)
+	}
+
+	if len(candidates) == 0 {
+		return "", fmt.Errorf("no registries found")
+	}
+
+	var selected string
+	if err := survey.AskOne(&survey.Select{
+		Message: "Select the registry to delete",
+		Options: candidates,
+	}, &selected, survey.WithValidator(survey.Required)); err != nil {
+		return "", err
 	}
 
 	return selected, nil
@@ -268,7 +294,7 @@ func inputK3dClusterLoadBalancerPortMap() (map[int]int, error) {
 }
 
 func createK3dCluster(name string, agents int, registry string, loadBalancerPortMap map[int]int) error {
-	args := []string{"cluster", "create", name, "--image", registry, "--agents", fmt.Sprintf("%d", agents)}
+	args := []string{"cluster", "create", name, "--registry-use", registry, "--agents", fmt.Sprintf("%d", agents)}
 	for hostPort, containerPort := range loadBalancerPortMap {
 		args = append(args, "-p", fmt.Sprintf("%d:%d@loadbalancer", hostPort, containerPort))
 	}
