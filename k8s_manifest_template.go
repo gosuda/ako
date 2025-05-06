@@ -605,12 +605,12 @@ metadata:
   {{- if .Labels }}
   labels:
     {{- range $key, $value := .Labels }}
-    {{ $key }}: {{ $value | quote }}
+    {{ $key }}: {{ $value }}
     {{- end }}
   {{- end }}
 data:
   {{- range $key, $value := .Data }}
-  {{ $key }}: {{ $value | quote }}
+  {{ $key }}: {{ $value }}
   {{- end }}
 `
 
