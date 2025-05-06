@@ -23,7 +23,8 @@ func generateTimeBasedVersion() string {
 
 func buildDockerImage(cmdDepth ...string) error {
 	version := generateTimeBasedVersion()
-	imageTag := globalConfig.Namespace + "/" + strings.Join(cmdDepth, "/") + ":" + version
+	appName := makeCmdDepthToName(cmdDepth...)
+	imageTag := globalConfig.Namespace + "/" + appName + ":" + version
 	dockerFilePath := filepath.Join(RootPackageCmd, filepath.Join(cmdDepth...), "Dockerfile")
 	cmd := exec.Command("docker", "build", "-t", imageTag, "-f", dockerFilePath, ".")
 	cmd.Stdout = os.Stdout

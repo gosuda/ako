@@ -11,6 +11,18 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
+func makeCmdDepthToName(cmd ...string) string {
+	if len(cmd) == 0 {
+		return ""
+	}
+
+	if len(cmd) == 1 {
+		return cmd[0]
+	}
+
+	return fmt.Sprintf("%s-%s", makeCmdDepthToName(cmd[1:]...), cmd[0])
+}
+
 func GetK8sManifestList(prefix string) ([]string, error) {
 	if prefix == "" {
 		prefix = k8sManifestFolder
