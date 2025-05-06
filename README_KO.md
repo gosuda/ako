@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gosuda/ako)](https://goreportcard.com/report/github.com/gosuda/ako)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-`ako`는 Go 프로젝트의 생산성과 표준화를 위한 CLI 도구입니다. 반복적인 설정, 코드 구조화, Git 관리, 로컬 K3d 환경 구성을 자동화하여 개발자가 핵심 로직에 집중하도록 돕습니다.
+`ako`는 Go 프로젝트의 생산성과 표준화를 위한 CLI 도구입니다. 특히, 여러 관련 서비스들을 하나의 저장소에서 관리하는 모노레포(Monorepo) 환경과, 이 서비스들을 쿠버네티스(Kubernetes) 상의 단일 네임스페이스 내에서 효율적으로 관리하는 것을 지향합니다. 반복적인 설정, 코드 구조화, Git 관리, 로컬 K3d 환경 구성을 자동화하여 개발자가 핵심 로직에 집중하도록 돕습니다.
 
 ## 해결하려는 문제 (Problem)
 
