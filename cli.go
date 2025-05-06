@@ -663,18 +663,21 @@ var rootCmd = &cli.Command{
 									if err := generateK8sServiceFile(globalConfig.Namespace, cmds...); err != nil {
 										return cli.Exit(err.Error(), 1)
 									}
-
-									if err := generateK8sConfigMap(globalConfig.Namespace, cmds...); err != nil {
-										return cli.Exit(err.Error(), 1)
-									}
 								case k8sManifestKindCronJob:
 									if err := generateK8sCronJobFile(globalConfig.Namespace, cmds...); err != nil {
 										return cli.Exit(err.Error(), 1)
 									}
+								default:
+									log.Printf("Unknown K3D manifest kind: %s", selectedKind)
+									return cli.Exit("Unknown K3D manifest kind", 1)
+								}
 
-									if err := generateK8sConfigMap(globalConfig.Namespace, cmds...); err != nil {
-										return cli.Exit(err.Error(), 1)
-									}
+								if err := generateK8sConfigMap(globalConfig.Namespace, cmds...); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := generateK8sPvcFile(globalConfig.Namespace, cmds...); err != nil {
+									return cli.Exit(err.Error(), 1)
 								}
 
 								log.Printf("Created K3D manifest for command: %s", selectedCmd)

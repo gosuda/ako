@@ -526,42 +526,42 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 }
 
 const k8sPvcTemplate = `# pvc.tmpl
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .PvcName }}
-  namespace: {{ .Namespace }}
-  {{- if .Labels }}
-  labels:
-    {{- range $key, $value := .Labels }}
-    {{ $key }}: "{{ $value }}"
-    {{- end }}
-  {{- end }}
-  {{- if .Annotations }}
-  annotations:
-    {{- range $key, $value := .Annotations }}
-    {{ $key }}: "{{ $value }}"
-    {{- end }}
-  {{- end }}
-spec:
-  accessModes:
-    - {{ .AccessMode }}
-  resources:
-    requests:
-      storage: {{ .StorageSize }} # 예: "5Gi"
-  {{- if .StorageClassName }}
-  storageClassName: {{ .StorageClassName }}
-  {{- end }}
-  {{- if .VolumeName }}
-  volumeName: {{ .VolumeName }}
-  {{- end }}
-  {{- if .SelectorLabels }}
-  selector:
-    matchLabels:
-      {{- range $key, $value := .SelectorLabels }}
-      {{ $key }}: "{{ $value }}"
-      {{- end }}
-  {{- end }}
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: {{ .PvcName }}
+#  namespace: {{ .Namespace }}
+#  {{- if .Labels }}
+#  labels:
+#    {{- range $key, $value := .Labels }}
+#    {{ $key }}: "{{ $value }}"
+#    {{- end }}
+#  {{- end }}
+#  {{- if .Annotations }}
+#  annotations:
+#    {{- range $key, $value := .Annotations }}
+#    {{ $key }}: "{{ $value }}"
+#    {{- end }}
+#  {{- end }}
+#spec:
+#  accessModes:
+#    - {{ .AccessMode }}
+#  resources:
+#    requests:
+#      storage: {{ .StorageSize }} # 예: "5Gi"
+#  {{- if .StorageClassName }}
+#  storageClassName: {{ .StorageClassName }}
+#  {{- end }}
+#  {{- if .VolumeName }}
+#  volumeName: {{ .VolumeName }}
+#  {{- end }}
+#  {{- if .SelectorLabels }}
+#  selector:
+#    matchLabels:
+#      {{- range $key, $value := .SelectorLabels }}
+#      {{ $key }}: "{{ $value }}"
+#      {{- end }}
+#  {{- end }}
 `
 
 type K8sPvcData struct {
@@ -574,6 +574,44 @@ type K8sPvcData struct {
 	StorageClassName string // "standard", "gp2"
 	VolumeName       string
 	SelectorLabels   map[string]string
+}
+
+func generateK8sPvcFile(namespace string, cmdDepth ...string) error {
+	if err := os.MkdirAll(k8sManifestFolder, 0755); err != nil {
+		return err
+	}
+
+	appName := makeCmdDepthToName(cmdDepth...)
+
+	pvcData := K8sPvcData{
+		PvcName:          appName + "-pvc",
+		Namespace:        namespace,
+		Labels:           map[string]string{"app": appName},
+		Annotations:      map[string]string{"description": "Write description here"},
+		AccessMode:       "ReadWriteOnce",
+		StorageSize:      "1Gi",
+		StorageClassName: "standard",
+	}
+
+	pvcFilePath := makeK8sManifestFile(k8sEnvRemote, k8sPvcFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Dir(pvcFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(pvcFilePath, k8sPvcTemplate, pvcData); err != nil {
+		return err
+	}
+
+	pvcFilePath = makeK8sManifestFile(k8sEnvLocal, k8sPvcFile, cmdDepth...)
+	if err := os.MkdirAll(filepath.Dir(pvcFilePath), 0755); err != nil {
+		return err
+	}
+
+	if err := writeTemplate2File(pvcFilePath, k8sPvcTemplate, pvcData); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type K8sConfigMapData struct {
