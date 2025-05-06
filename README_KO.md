@@ -89,6 +89,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
 
 4.  간편한 코드 품질 검사 (`ako linter` / `ako l`):
     * `ako linter` (`ako l`) 명령 하나로 프로젝트 전체에 대해 `golangci-lint`를 실행하여, 코드 스타일 문제를 조기에 발견하고 일관된 코드 품질을 유지하도록 지원합니다.
+    * `ako init` 시 생성되는 `.golangcilint.yaml` 파일을 수정하여 프로젝트의 필요에 맞게 린터 규칙을 활성화/비활성화하거나 설정을 변경하는 등 사용자 정의할 수 있습니다. 사용 가능한 린터 및 설정 옵션은 [golangci-lint 공식 문서](https://golangci-lint.run/usage/linters/)를 참고하세요.
 
 5.  단순화된 로컬 K3d 환경 관리 (`ako k3d` / `ako k`):
     * K3d 레지스트리 및 클러스터 생성/삭제/조회 (`ako k3d registry`, `ako k3d cluster`)를 간단한 명령으로 자동화하여 로컬 쿠버네티스 인프라 구축의 복잡성을 제거합니다.
