@@ -48,9 +48,27 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
     * `ako go internal`, `ako go pkg` 명령어는 사전 정의된 템플릿(예: Chi 핸들러, Redis 클라이언트)을 선택하여 Fx 모듈 기반의 보일러플레이트 코드를 자동으로 생성해주므로, 개발 속도를 높이고 코드의 일관성을 보장합니다.
     * `ako go buf` (`ako g f`) 명령으로 `buf generate` 실행을 간소화하여 Protobuf 기반 개발을 용이하게 합니다.
 
-3.  체계적인 Git 워크플로우 지원 (`ako branch` / `ako b`):
-    * `ako branch commit` (`ako b m`)은 Conventional Commits 규약을 따르는 커밋 메시지 작성을 대화형 프롬프트로 지원하여, 일관되고 의미 있는 Git 히스토리를 쉽게 만들 수 있도록 돕습니다.
-    * `ako branch create` (`ako b c`)는 `type/scope/description` 형식의 계층적 브랜치 생성을 자동화하고, `up` (`b u`), `down` (`b d`) 명령어로 부모/자식 브랜치 간 이동을 간편하게 만들어 복잡한 기능 개발 흐름을 체계적으로 관리할 수 있게 합니다.
+3.  체계적인 Git 워크플로우 및 브랜치 전략 지원 (`ako branch` / `ako b`):
+    * `ako`는 Git 관리를 위한 명확하고 계층적인 브랜치 전략을 적용하고 관련 작업을 자동화합니다.
+    * **주요 브랜치 계층 구조**:
+        * `release`: 항상 배포 가능한 프로덕션 코드 브랜치입니다. (`ako init` 시 생성)
+        * `staging`: 릴리스 후보 테스트를 위한 브랜치입니다. (`release` 에서 분기 가능)
+        * `develop`: 다음 릴리스를 위한 최신 개발 코드를 통합하는 브랜치입니다. (`staging` 에서 분기 가능)
+        * `epic/{epic-name}`: 큰 기능 단위를 관리하는 브랜치입니다. (`develop` 에서 분기 가능)
+        * `feature/{epic-name}/{feature-name}`: 하위 호환성을 유지하는 신규 기능 개발 브랜치입니다. (`epic` 에서 분기 가능)
+        * `patch/{epic-name}/{patch-name}`: 하위 호환성을 유지하는 버그 수정 브랜치입니다. (`epic` 에서 분기 가능)
+        * `break/{epic-name}/{break-name}`: 하위 호환성을 깨뜨릴 수 있는 변경 사항 개발 브랜치입니다. (`epic` 에서 분기 가능)
+        * `proposal/{feature|patch|break-name}/{proposal-name}`: 실험적 아이디어나 논의가 필요한 작업을 위한 임시 브랜치입니다. (`feature`, `patch`, `break` 에서 분기 가능)
+        * `hotfix/*`: 운영 환경 긴급 버그 수정을 위한 브랜치입니다. (`release` 에서 분기 가능, `ako branch create` 로 직접 생성되지는 않음)
+    * **브랜치 생성 자동화**:
+        * `ako branch create` (`ako b c`) 명령은 현재 브랜치를 기반으로 **허용된 하위 타입의 브랜치를 대화형으로 생성**합니다. 예를 들어, 현재 브랜치가 `epic/user-auth` 라면, `feature/user-auth/login`, `patch/user-auth/validation-fix` 등을 생성할 수 있습니다.
+        * 브랜치 이름은 `타입/상위스코프/작업명` 또는 `타입/작업명` 형식으로 구성됩니다.
+    * **계층 간 이동**:
+        * `ako branch up` (`ako b u`) 및 `ako branch down` (`ako b d`) 명령어를 통해 현재 브랜치의 **정의된 부모 또는 자식 브랜치로 쉽게 이동**할 수 있어, 복잡한 브랜치 구조에서도 탐색이 용이합니다.
+    * **Conventional Commits 강제**:
+        * `ako branch commit` (`ako b m`)은 Conventional Commits 규약을 따르는 커밋 메시지 작성을 대화형 프롬프트로 지원합니다.
+        * 이는 커밋 히스토리의 가독성을 높이고, 변경 사항의 의도를 명확히 하며, 버전 관리 및 변경 로그 자동 생성의 기반이 됩니다.
+    * 이 전략과 자동화 도구를 통해 팀은 일관된 방식으로 브랜치를 관리하고, 코드 변경 이력을 효과적으로 추적하며, 안정적인 개발 및 릴리스 파이프라인을 구축할 수 있습니다.
 
 4.  간편한 코드 품질 검사 (`ako linter` / `ako l`):
     * `ako linter` (`ako l`) 명령 하나로 프로젝트 전체에 대해 `golangci-lint`를 실행하여, 코드 스타일 문제를 조기에 발견하고 일관된 코드 품질을 유지하도록 지원합니다.
@@ -85,7 +103,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
 ### 설치
 
 ```bash
-go install github.com/gosuda/ako@latest
+go install [github.com/gosuda/ako@latest](https://github.com/gosuda/ako@latest)
 ```
 
 ### 기본 사용법 (예시)
