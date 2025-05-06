@@ -3,12 +3,13 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func generateGoImageFile(appName string) error {
 	const template = `
 # Run
-# docker build -f cmd/{{.cmd_name}}/Dockerfile -t <org>/<group>/{{.cmd_name}} .
+# docker build -f cmd/{{.cmd_name}}/Dockerfile -t <org>/<group>/{{.app_name}} .
 # in root of the project to build the image.
 FROM docker.io/library/golang:latest
 
@@ -38,6 +39,7 @@ CMD ["./main"]
 	path := filepath.Join("cmd", appName, "Dockerfile")
 	if err := writeTemplate2File(path, template, map[string]any{
 		"cmd_name": appName,
+		"app_name": makeCmdDepthToName(strings.Split(appName, "/")...),
 	}); err != nil {
 		return err
 	}
