@@ -146,8 +146,6 @@ metadata:
     version: {{ .Version }}
   annotations:
     kubernetes.io/change-cause: "{{ .ChangeCause }}"
-    prometheus.io/scrape: "{{ .EnablePrometheusScrape }}"
-    prometheus.io/port: "{{ .MetricsPort }}"
 spec:
   replicas: {{ .Replicas }}
   selector:
@@ -173,23 +171,10 @@ spec:
             memory: "{{ .Resources.Limits.Memory }}"
             cpu: "{{ .Resources.Limits.CPU }}"
         {{- end }}
-        {{- if .EnvVars }}
-        env:
-        {{- range .EnvVars }}
-        - name: {{ .Name }}
-          value: "{{ .Value }}"
-        {{- end }}
-        {{- end }}
-        {{- if .SecretEnvVars }}
-        env:
-        {{- range .SecretEnvVars }}
-        - name: {{ .Name }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ .SecretName }}
-              key: {{ .SecretKey }}
-        {{- end }}
-        {{- end }}
+
+        envFrom:
+        - configMapRef:
+            name: {{ .AppName }}-configmap
 `
 
 type K8sResourceRequirements struct {
@@ -202,33 +187,18 @@ type K8sResources struct {
 	Limits   K8sResourceRequirements
 }
 
-type K8sEnvVar struct {
-	Name  string
-	Value string
-}
-
-type K8sSecretEnvVar struct {
-	Name       string
-	SecretName string
-	SecretKey  string
-}
-
 type K8sDeploymentData struct {
-	AppName                string
-	Namespace              string
-	Tier                   string // "service", "aggregator", "orchestrator", "worker", "middleware"
-	Version                string
-	ChangeCause            string
-	EnablePrometheusScrape string
-	MetricsPort            int
-	Replicas               int
-	ContainerName          string
-	Image                  string
-	Tag                    string
-	Port                   int
-	Resources              *K8sResources
-	EnvVars                []K8sEnvVar
-	SecretEnvVars          []K8sSecretEnvVar
+	AppName       string
+	Namespace     string
+	Tier          string // "service", "aggregator", "orchestrator", "worker", "middleware"
+	Version       string
+	ChangeCause   string
+	Replicas      int
+	ContainerName string
+	Image         string
+	Tag           string
+	Port          int
+	Resources     *K8sResources
 }
 
 func selectK8sDeploymentTier() (string, error) {
@@ -260,13 +230,15 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 		return err
 	}
 
+	appName := makeCmdDepthToName(cmdDepth...)
+
 	deploymentData := K8sDeploymentData{
-		AppName:       cmdDepth[len(cmdDepth)-1],
+		AppName:       appName,
 		Namespace:     namespace,
 		Tier:          tier,
 		Version:       "v1.0.0",
 		ChangeCause:   "Initial deployment",
-		ContainerName: cmdDepth[len(cmdDepth)-1],
+		ContainerName: appName,
 		Image:         globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
 		Tag:           "latest",
 		Port:          8080,
@@ -338,8 +310,10 @@ func generateK8sServiceFile(namespace string, cmdDepth ...string) error {
 		return err
 	}
 
+	appName := makeCmdDepthToName(cmdDepth...)
+
 	serviceData := K8sServiceData{
-		AppName:     cmdDepth[len(cmdDepth)-1],
+		AppName:     appName,
 		Namespace:   namespace,
 		Description: "Write description here",
 		ServicePort: 80,
@@ -503,13 +477,15 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 		return err
 	}
 
+	appName := makeCmdDepthToName(cmdDepth...)
+
 	cronJobData := CronJobData{
-		CronJobName:       cmdDepth[len(cmdDepth)-1],
+		CronJobName:       appName,
 		Namespace:         namespace,
 		JobType:           "cron",
 		Description:       "Write description here",
 		Schedule:          "*/5 * * * *",
-		ContainerName:     cmdDepth[len(cmdDepth)-1] + "-cronjob",
+		ContainerName:     appName + "-cronjob",
 		Image:             globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
 		Tag:               "latest",
 		RestartPolicy:     "OnFailure",
@@ -598,7 +574,7 @@ type K8sConfigMapData struct {
 const k8sConfigMapTemplate = `apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Name }}
+  name: {{ .Name }}-configmap
   {{- if .Namespace }}
   namespace: {{ .Namespace }}
   {{- end }}
@@ -619,10 +595,12 @@ func generateK8sConfigMap(namespace string, cmdDepth ...string) error {
 		return err
 	}
 
+	appName := makeCmdDepthToName(cmdDepth...)
+
 	configMapData := K8sConfigMapData{
-		Name:      cmdDepth[len(cmdDepth)-1],
+		Name:      appName,
 		Namespace: namespace,
-		Labels:    map[string]string{"app": cmdDepth[len(cmdDepth)-1]},
+		Labels:    map[string]string{"app": appName},
 		Data:      map[string]string{"key": "value", "loopback": "127.0.0.1"},
 	}
 
