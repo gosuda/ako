@@ -11,7 +11,7 @@ Starting and continuously managing Go projects often involves the following inef
 
 1.  Complex and time-consuming initial setup:
     * Every new project requires basic tasks like creating a Go module, initializing a Git repository, and setting up a basic `.gitignore` file.
-    * Configuring CI/CD pipelines (e.g., GitHub Actions workflows), setting up linters (`golangci-lint`) for code quality management, and configuring `buf` for Protobuf usage require specialized knowledge, are cumbersome, and prone to errors.
+    * Configuring CI/CD pipelines (e.g., GitHub Actions workflows), setting up linters (`golangci-lint`) for code quality management, and configuring `buf` for Protobuf usage require knowledge, are cumbersome, and prone to errors.
     * Considering Dev Container setup for development environment consistency adds significant time and effort to the initial setup.
 
 2.  Inconsistent project structure:
