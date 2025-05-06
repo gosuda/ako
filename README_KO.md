@@ -255,6 +255,9 @@ go install [github.com/gosuda/ako@latest](https://github.com/gosuda/ako@latest)
 * `templ`: a-h/templ SSR 컴포넌트.
 * `valkey`: valkey-io/valkey-go 클라이언트.
 * `vault`: hashicorp/vault/api 클라이언트.
+* `zap`: uber-go/zap 로깅.
+* `zerolog`: rs/zerolog 로깅.
+* `slog`: log/slog 로깅.
 * `empty`: 기본 Fx 모듈 구조만 포함.
 
 ## 라이선스 (License)

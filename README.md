@@ -255,6 +255,9 @@ Fx-based templates selectable when running `ako go internal` and `ako go pkg`.
 * `templ`: Server-side rendering (SSR) component using a-h/templ.
 * `valkey`: Client using valkey-io/valkey-go.
 * `vault`: Client using hashicorp/vault/api.
+* `zap`: Logging using uber-go/zap.
+* `zerolog`: Logging using github.com/rs/zerolog.
+* `slog`: Logging using log/slog.
 * `empty`: Includes only the basic Fx module structure.
 
 ## License
