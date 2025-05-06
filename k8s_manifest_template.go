@@ -239,7 +239,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 		Version:       "v1.0.0",
 		ChangeCause:   "Initial deployment",
 		ContainerName: appName,
-		Image:         globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
+		Image:         globalConfig.RemoteRegistry + "/" + globalConfig.Namespace + "/" + appName,
 		Tag:           "latest",
 		Port:          8080,
 		Replicas:      3,
@@ -264,7 +264,7 @@ func generateK8sDeploymentFile(tier string, namespace string, cmdDepth ...string
 		return err
 	}
 
-	deploymentData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
+	deploymentData.Image = globalConfig.LocalRegistry + "/" + globalConfig.Namespace + "/" + appName
 	deploymentFilePath = makeK8sManifestFile(k8sEnvLocal, k8sDeploymentFile, cmdDepth...)
 	if err := os.MkdirAll(filepath.Dir(deploymentFilePath), 0755); err != nil {
 		return err
@@ -444,11 +444,9 @@ spec:
             - "{{ . }}"
             {{- end }}
             {{- end }}
-            {{- if .EnvFromSecret }}
             envFrom:
-            - secretRef:
-                name: {{ .EnvFromSecret }}
-            {{- end }}
+            - configMapRef:
+                name: {{ .CronJobName }}-configmap
           restartPolicy: {{ .RestartPolicy }}
   successfulJobsHistoryLimit: {{ .SuccessfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ .FailedJobsHistoryLimit }}
@@ -486,7 +484,7 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 		Description:       "Write description here",
 		Schedule:          "*/5 * * * *",
 		ContainerName:     appName + "-cronjob",
-		Image:             globalConfig.RemoteRegistry + "/" + strings.Join(cmdDepth, "/"),
+		Image:             globalConfig.RemoteRegistry + "/" + globalConfig.Namespace + "/" + appName,
 		Tag:               "latest",
 		RestartPolicy:     "OnFailure",
 		ConcurrencyPolicy: "Forbid",
@@ -500,7 +498,7 @@ func generateK8sCronJobFile(namespace string, cmdDepth ...string) error {
 		return err
 	}
 
-	cronJobData.Image = globalConfig.LocalRegistry + "/" + strings.Join(cmdDepth, "/")
+	cronJobData.Image = globalConfig.LocalRegistry + "/" + globalConfig.Namespace + "/" + appName
 	cronJobFilePath = makeK8sManifestFile(k8sEnvLocal, k8sCronJobFile, cmdDepth...)
 	if err := os.MkdirAll(filepath.Dir(cronJobFilePath), 0755); err != nil {
 		return err
