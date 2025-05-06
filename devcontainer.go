@@ -17,10 +17,12 @@ WORKDIR /app
 COPY go.mod .
 COPY go.sum .
 
+ENV CGO_ENABLED=0 # Disable CGO, If you need CGO, set it to 1
+
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 go build -o main ./cmd/{{.cmd_name}}/.
+RUN go build -o main ./cmd/{{.cmd_name}}/.
 
 FROM alpine:latest
 
