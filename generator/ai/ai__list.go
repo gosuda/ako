@@ -9,8 +9,11 @@ import (
 
 var (
 	aiTemplateList = map[string]func() error{
-		"github copilot": CreateVsCodeCopilotSettings,
-		"continue":       CreateVsCodeContinueSettings,
+		"vscode: github copilot": CreateVsCodeCopilotSettings,
+		"vscode: continue":       CreateVsCodeContinueSettings,
+		"none": func() error {
+			return nil
+		},
 	}
 )
 
