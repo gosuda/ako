@@ -9,7 +9,7 @@ import (
 )
 
 var ciTemplates = map[string]func(name string) error{
-	"nothing": func(name string) error {
+	"none": func(name string) error {
 		return nil
 	},
 }
