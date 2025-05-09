@@ -258,6 +258,9 @@ go install [github.com/gosuda/ako@latest](https://github.com/gosuda/ako@latest)
 * `zap`: uber-go/zap 로깅.
 * `zerolog`: rs/zerolog 로깅.
 * `slog`: log/slog 로깅.
+* `meilisearch`: meilisearch/meilisearch-go 클라이언트.
+* `opensearch`: opensearch-project/opensearch-go 클라이언트.
+* `elasticsearch`: elastic/go-elasticsearch/v9 클라이언트.
 * `empty`: 기본 Fx 모듈 구조만 포함.
 
 ## 라이선스 (License)

@@ -258,6 +258,9 @@ Fx-based templates selectable when running `ako go internal` and `ako go pkg`.
 * `zap`: Logging using uber-go/zap.
 * `zerolog`: Logging using github.com/rs/zerolog.
 * `slog`: Logging using log/slog.
+* `meilisearch`: Client using meilisearch/meilisearch-go.
+* `opensearch`: Client using opensearch-project/opensearch-go.
+* `elasticsearch`: Client using elastic/go-elasticsearch/v9.
 * `empty`: Includes only the basic Fx module structure.
 
 ## License
