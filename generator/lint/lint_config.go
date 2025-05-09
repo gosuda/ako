@@ -12,7 +12,6 @@ linters:
     - containedctx
     - contextcheck
     - copyloopvar
-    - cyclop
     - decorder
     - dogsled
     - durationcheck
@@ -25,11 +24,9 @@ linters:
     - fatcontext
     - forbidigo
     - forcetypeassert
-    - funcorder
     - funlen
     - ginkgolinter
     - gocheckcompilerdirectives
-    - gochecknoinits
     - gochecksumtype
     - gocognit
     - goconst
@@ -67,7 +64,6 @@ linters:
     - nlreturn
     - noctx
     - nolintlint
-    - nonamedreturns
     - nosprintfhostport
     - paralleltest
     - perfsprint
@@ -109,6 +105,10 @@ linters:
     - err113
     - lll
     - varnamelen
+    - cyclop
+    - funcorder
+    - gochecknoinits
+    - nonamedreturns
   exclusions:
     generated: lax
     warn-unused: true
