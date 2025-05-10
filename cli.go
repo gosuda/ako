@@ -9,7 +9,6 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v3"
 
-	"github.com/gosuda/ako/generator/ai"
 	"github.com/gosuda/ako/generator/ci"
 	"github.com/gosuda/ako/generator/docker"
 	"github.com/gosuda/ako/generator/k8s"
@@ -41,11 +40,6 @@ var rootCmd = &cli.Command{
 				}
 
 				loggerLibrary, err := packages.SelectLoggerLibrary()
-				if err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
-
-				aiSolution, err := ai.SelectAiTemplate()
 				if err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -91,10 +85,6 @@ var rootCmd = &cli.Command{
 				}
 
 				if err := git.CreateGitIgnoreFile(); err != nil {
-					return cli.Exit(err.Error(), 1)
-				}
-
-				if err := ai.CreateAiTemplate(aiSolution); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
 
