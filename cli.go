@@ -9,6 +9,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v3"
 
+	"github.com/gosuda/ako/generator/ai"
 	"github.com/gosuda/ako/generator/ci"
 	"github.com/gosuda/ako/generator/docker"
 	"github.com/gosuda/ako/generator/k8s"
@@ -81,6 +82,10 @@ var rootCmd = &cli.Command{
 				}
 
 				if err := ci.CreateCITemplate(ciTemplate); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
+				if err := ai.InitConfig(); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
 
@@ -263,18 +268,24 @@ var rootCmd = &cli.Command{
 					Aliases: []string{"m"},
 					Usage:   "Create a new message and commit",
 					Action: func(ctx context.Context, command *cli.Command) error {
-						message, err := git.BuildGitCommitMessage()
+						files, err := git.ListUnstagedFilesWithType()
 						if err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
-						log.Printf("Git commit message: %s", message)
+						if len(files) == 0 {
+							log.Println("No unstaged files found")
+							return nil
+						}
 
-						if err := git.CommitGitFiles(message); err != nil {
+						selected, err := git.SelectUnstagedFilesToStage(files)
+						if err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
-						log.Printf("Git Committed files successfully")
+						if err := git.StageFiles(selected); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
 
 						return nil
 					},
