@@ -287,7 +287,49 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						return nil
+						diff, err := git.GetDiffStagedFiles()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if len(diff) == 0 {
+							log.Println("No changes found in staged files")
+							return nil
+						}
+
+						for {
+							stream, err := ai.GenerateCommitMessage(ctx, string(diff))
+							if err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
+
+							generated := strings.Builder{}
+							for message := range stream {
+								generated.WriteString(message)
+							}
+
+							parsed, err := ai.GetCommitMessageOutputFrom(generated.String())
+							if err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
+
+							confirm, err := ai.Confirm("Confirm commit message: `" + parsed + "`?")
+							if err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
+
+							if confirm {
+								if err := git.CommitGitFiles(parsed); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Committed files with message: %s", parsed)
+
+								return nil
+							} else {
+								log.Println("Retrying commit message generation...")
+							}
+						}
 					},
 				},
 				{
