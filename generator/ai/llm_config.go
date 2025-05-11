@@ -33,13 +33,11 @@ type Config struct {
 	}
 	Anthropic struct {
 		Enable bool   `yaml:"enable"`
-		Host   string `yaml:"host"`
 		Model  string `yaml:"model"`
 		APIKey string `yaml:"api_key"`
 	} `yaml:"anthropic"`
 	OpenAI struct {
 		Enable bool   `yaml:"enable"`
-		Host   string `yaml:"host"`
 		Model  string `yaml:"model"`
 		APIKey string `yaml:"api_key"`
 	} `yaml:"openai"`
@@ -129,6 +127,13 @@ func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, 
 		return client.GenerateCommitMessage(ctx, gitDiff)
 	case GlobalConfig.Vertex.Enable:
 		client, err := NewGeminiClient(genai.BackendVertexAI, GlobalConfig.Vertex.APIKey, GlobalConfig.Vertex.Model, GlobalConfig.Vertex.Location, GlobalConfig.Vertex.Project)
+		if err != nil {
+			return nil, err
+		}
+		return client.GenerateCommitMessage(ctx, gitDiff)
+	case GlobalConfig.Anthropic.Enable:
+	case GlobalConfig.OpenAI.Enable:
+		client, err := NewOpenAIClient(GlobalConfig.OpenAI.APIKey, GlobalConfig.OpenAI.Model)
 		if err != nil {
 			return nil, err
 		}
