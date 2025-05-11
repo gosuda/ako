@@ -61,6 +61,8 @@ sql:
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/jackc/pgx/v5"
 	"go.uber.org/fx"
@@ -131,6 +133,8 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/fx"
@@ -183,7 +187,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			if err := cli.db.Close(); err != nil {
+			if err := cli.db.Close(ctx); err != nil {
 				return fmt.Errorf("db.Close: %w", err)
 			}
 
