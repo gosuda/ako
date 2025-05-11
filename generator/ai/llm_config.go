@@ -132,6 +132,11 @@ func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, 
 		}
 		return client.GenerateCommitMessage(ctx, gitDiff)
 	case GlobalConfig.Anthropic.Enable:
+		client, err := NewAnthropicClient(GlobalConfig.Anthropic.APIKey, GlobalConfig.Anthropic.Model)
+		if err != nil {
+			return nil, err
+		}
+		return client.GenerateCommitMessage(ctx, gitDiff)
 	case GlobalConfig.OpenAI.Enable:
 		client, err := NewOpenAIClient(GlobalConfig.OpenAI.APIKey, GlobalConfig.OpenAI.Model)
 		if err != nil {
