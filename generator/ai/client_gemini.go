@@ -47,10 +47,11 @@ func (c *GeminiClient) GenerateCommitMessage(ctx context.Context, gitDiff string
 	}
 
 	go func() {
+		defer close(ch)
+
 		for part, err := range chat.SendMessageStream(ctx, *genai.NewPartFromText(gitDiff)) {
 			if err != nil {
 				log.Printf("Error occurred while receiving message: %v", err)
-				close(ch)
 				return
 			}
 
