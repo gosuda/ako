@@ -137,6 +137,10 @@ Starting and continuously managing Go projects often involves the following inef
 * [Go 1.24+](https://go.dev/dl/)
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
+* LLM
+    * [Ollama](https://ollama.com/download) (Optional)
+    * [GeminiAPI](https://ai.google.dev/gemini-api/docs/api-key) (Optional)
+    * [ChatGPT](https://platform.openai.com/docs/guides/gpt) (Optional)
 * [K3d](https://k3d.io/#installation) (Optional)
 * [Buf](https://buf.build/docs/installation) (Embedded)
 

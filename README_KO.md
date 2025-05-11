@@ -137,6 +137,10 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
 * [Go 1.24+](https://go.dev/dl/)
 * [Git](https://git-scm.com/downloads)
 * [Docker](https://docs.docker.com/get-docker/)
+* LLM
+  * [Ollama](https://ollama.com/download) (선택 사항)
+  * [GeminiAPI](https://ai.google.dev/gemini-api/docs/api-key) (선택 사항)
+  * [ChatGPT](https://platform.openai.com/docs/guides/gpt) (선택 사항)
 * [K3d](https://k3d.io/#installation) (선택 사항)
 * [Buf](https://buf.build/docs/installation) (내장됨)
 
