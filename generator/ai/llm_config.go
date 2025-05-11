@@ -1,6 +1,8 @@
 package ai
 
 import (
+	"context"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -98,4 +100,20 @@ func InitConfig() error {
 	}
 
 	return nil
+}
+
+func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, error) {
+	if globalConfigNotExists {
+		return nil, fmt.Errorf("config file not exists")
+	}
+
+	if GlobalConfig.Ollama.Enable {
+		client, err := NewOllamaClient(GlobalConfig.Ollama.Host, GlobalConfig.Ollama.Model)
+		if err != nil {
+			return nil, err
+		}
+		return client.GenerateCommitMessage(ctx, gitDiff)
+	}
+
+	return nil, nil
 }
