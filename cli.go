@@ -297,6 +297,8 @@ var rootCmd = &cli.Command{
 							return nil
 						}
 
+						const maxGenerationErrorCount = 3
+						generationErrorCount := 0
 						for {
 							stream, err := ai.GenerateCommitMessage(ctx, string(diff))
 							if err != nil {
@@ -310,7 +312,11 @@ var rootCmd = &cli.Command{
 
 							parsed, err := ai.GetCommitMessageOutputFrom(generated.String())
 							if err != nil {
-								return cli.Exit(err.Error(), 1)
+								generationErrorCount++
+								if generationErrorCount >= maxGenerationErrorCount {
+									return cli.Exit(err.Error(), 1)
+								}
+								continue
 							}
 
 							confirm, err := ai.Confirm("Confirm commit message: `" + parsed + "`?")
