@@ -96,7 +96,7 @@ func InitConfig() error {
 		}{
 			Enable: true,
 			Host:   "http://localhost:11434",
-			Model:  "gemma3:4b",
+			Model:  "gemma3:1b",
 		},
 	}
 
