@@ -107,7 +107,11 @@ func InitConfig() error {
 	return nil
 }
 
-func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, error) {
+type LLMClient interface {
+	GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, error)
+}
+
+func NewLLMClient(ctx context.Context) (LLMClient, error) {
 	if globalConfigNotExists {
 		return nil, fmt.Errorf("config file not exists")
 	}
@@ -118,32 +122,46 @@ func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, 
 		if err != nil {
 			return nil, err
 		}
-		return client.GenerateCommitMessage(ctx, gitDiff)
+		return client, nil
 	case GlobalConfig.Gemini.Enable:
 		client, err := NewGeminiClient(genai.BackendGeminiAPI, GlobalConfig.Gemini.APIKey, GlobalConfig.Gemini.Model, "", "")
 		if err != nil {
 			return nil, err
 		}
-		return client.GenerateCommitMessage(ctx, gitDiff)
+		return client, nil
 	case GlobalConfig.Vertex.Enable:
 		client, err := NewGeminiClient(genai.BackendVertexAI, GlobalConfig.Vertex.APIKey, GlobalConfig.Vertex.Model, GlobalConfig.Vertex.Location, GlobalConfig.Vertex.Project)
 		if err != nil {
 			return nil, err
 		}
-		return client.GenerateCommitMessage(ctx, gitDiff)
+		return client, nil
 	case GlobalConfig.Anthropic.Enable:
 		client, err := NewAnthropicClient(GlobalConfig.Anthropic.APIKey, GlobalConfig.Anthropic.Model)
 		if err != nil {
 			return nil, err
 		}
-		return client.GenerateCommitMessage(ctx, gitDiff)
+		return client, nil
 	case GlobalConfig.OpenAI.Enable:
 		client, err := NewOpenAIClient(GlobalConfig.OpenAI.APIKey, GlobalConfig.OpenAI.Model)
 		if err != nil {
 			return nil, err
 		}
-		return client.GenerateCommitMessage(ctx, gitDiff)
+		return client, nil
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("no LLM client enabled")
+}
+
+func GenerateCommitMessage(ctx context.Context, gitDiff string) (<-chan string, error) {
+	client, err := NewLLMClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ch, err := client.GenerateCommitMessage(ctx, gitDiff)
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, nil
 }
