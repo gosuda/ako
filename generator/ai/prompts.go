@@ -52,10 +52,19 @@ You are an AI assistant tasked with generating commit messages that strictly adh
     chore: update build dependencies to latest versions
 * For refactoring the core API in a way that breaks backward compatibility:
     refactor(api)!: overhaul endpoint structure for v2
-## Output Format:
+## Output
+### Output Format:
 <Commit><|commit message|></Commit>
-## Example Output:
-<Commit>feat(auth): implement user logout functionality</Commit>
+### Example Output:
+- <Commit>feat(auth): implement user logout functionality</Commit>
+- <Commit>fix(ui-kit): correct button alignment on mobile</Commit>
+- <Commit>chore: update build dependencies to latest versions</Commit>
+- <Commit>refactor(api)!: overhaul endpoint structure for v2</Commit>
+- <Commit>fix!: correct button alignment on mobile</Commit>
+### Note:
+* The output must be a single line.
+* The output must be in the format specified above.
+* Do not return the example output.
 `
 )
 
