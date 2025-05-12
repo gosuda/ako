@@ -39,6 +39,8 @@ import (
 // You can append interfaces into the fx.As() function to register multiple interfaces.
 var Register = fx.Provide(New, ConfigRegister())
 
+var Invoke = fx.Invoke(func(svr *{{.server_name}}) {})
+
 func ConfigRegister() func() *Config {
 	return func() *Config {
 		return &Config{

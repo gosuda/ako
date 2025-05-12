@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	internalControllerTemplateList["empty"] = createFxStructFile
+	internalControllerTemplateList["[Empty] Empty"] = createFxInternalEmptyFile
 }
 
 const (
@@ -66,6 +66,43 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 	return &{{.client_name}}{}
 }`
 
+const fxInternalEmptyFileTemplate = `package {{.package_name}}
+
+import (
+	"context"
+
+	"go.uber.org/fx"
+)
+
+// Register is the fx.Provide function for the client.
+// It registers the client as a dependency in the fx application.
+// You can append interfaces into the fx.As() function to register multiple interfaces.
+var Register = fx.Provide(fx.Annotate(New, fx.As()))
+
+var Invoke = fx.Invoke(func(s *{{.client_name}}) {})
+
+type Param struct {
+	fx.In
+}
+
+type {{.client_name}} struct {
+}
+
+func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			// Initialize the client here if needed
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			// Clean up resources if needed
+			return nil
+		},
+	})
+
+	return &{{.client_name}}{}
+}`
+
 const fxInterfaceFileTemplate = `package {{.package_name}}
 
 type {{.client_name}} interface {
@@ -80,6 +117,24 @@ func createFxStructFile(path string, name string) error {
 
 	packageName := filepath.Base(path)
 	if err := template.WriteTemplate2File(filepath.Join(path, fmt.Sprintf(fxFileName, name)), fxStructFileTemplate, map[string]any{
+		"package_name": packageName,
+		"client_name":  name,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createFxInternalEmptyFile(path string, name string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return err
+	}
+
+	name = strings.ToUpper(name[:1]) + name[1:]
+
+	packageName := filepath.Base(path)
+	if err := template.WriteTemplate2File(filepath.Join(path, fmt.Sprintf(fxFileName, name)), fxInternalEmptyFileTemplate, map[string]any{
 		"package_name": packageName,
 		"client_name":  name,
 	}); err != nil {
