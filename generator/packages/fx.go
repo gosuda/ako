@@ -117,9 +117,19 @@ import (
 	"go.uber.org/fx"
 )
 
+func createContext() func() context.Context {
+	return func() context.Context {
+		return context.Background()
+	}
+}
+
 func main() {
-	fx.New(fx.StartTimeout(15*time.Second),
-		fx.StopTimeout(15*time.Second)).Run()
+	fx.New(createContext(),
+		fx.StartTimeout(15*time.Second),
+		fx.StopTimeout(15*time.Second)
+		fx.Invoke(func(){
+			// Do something
+		})).Run()
 }`
 )
 
