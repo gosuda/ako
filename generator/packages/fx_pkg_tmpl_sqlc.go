@@ -62,9 +62,9 @@ sql:
 import (
 	"context"
 	"fmt"
-	"os"
+	"sync"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 )
 
@@ -95,7 +95,7 @@ type Config struct {
 }
 
 type {{.client_name}} struct {
-	conn    *pgx.Conn
+	conn    *pgxpool.Pool
 	queries *queries.Queries
 }
 
@@ -104,7 +104,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			conn, err := pgx.Connect(ctx, param.Cfg.ConnectionString)
+			conn, err := pgxpool.New(ctx, param.Cfg.ConnectionString)
 			if err != nil {
 				return fmt.Errorf("pgx.Connect: %w", err)
 			}
@@ -115,9 +115,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			if err := cli.conn.Close(ctx); err != nil {
-				return fmt.Errorf("conn.Close: %w", err)
-			}
+			cli.conn.Close()
 
 			return nil
 		},
