@@ -71,7 +71,7 @@ import (
 // Register is the fx.Provide function for the client.
 // It registers the client as a dependency in the fx application.
 // You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()))
+var Register = fx.Provide(fx.Annotate(New, fx.As()), ConfigRegister())
 
 // ConfigRegister is the fx.Provide function for the config.
 // Modify the config according to your needs.
@@ -115,7 +115,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			if err := cli.conn.Close(); err != nil {
+			if err := cli.conn.Close(ctx); err != nil {
 				return fmt.Errorf("conn.Close: %w", err)
 			}
 
