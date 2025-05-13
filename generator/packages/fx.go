@@ -39,13 +39,21 @@ import (
 	"go.uber.org/fx"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()))
+var Module = fx.Module("{{.package_name}}",
+	fx.Provide(New, ConfigRegister()),
+)
+
+func ConfigRegister() func() *Config {
+	return func() *Config {
+		return &Config{}
+	}
+}
 
 type Param struct {
 	fx.In
+}
+
+type Config struct {
 }
 
 type {{.client_name}} struct {
@@ -74,12 +82,10 @@ import (
 	"go.uber.org/fx"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()))
-
-var Invoke = fx.Invoke(func(s *{{.client_name}}) {})
+var Module = fx.Module(
+	fx.Provide(New, ConfigRegister()),
+	fx.Invoke(func(svr *{{.client_name}}) {}),
+)
 
 type Param struct {
 	fx.In
@@ -167,24 +173,31 @@ const (
 	fxExecutableFileTemplate = `package main
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
 	"go.uber.org/fx"
 )
 
-func createContext() func() context.Context {
-	return func() context.Context {
-		return context.Background()
-	}
+func newStartupContext() context.Context {
+	return context.Background()
 }
 
 func main() {
-	fx.New(createContext(),
+	app := fx.New(fx.Provide(newStartupContext),
 		fx.StartTimeout(15*time.Second),
-		fx.StopTimeout(15*time.Second)
-		fx.Invoke(func(){
-			// Do something
-		})).Run()
+		fx.StopTimeout(15*time.Second),
+		fx.Invoke(func() {
+			fmt.Println("Hello, world!")
+		}),
+	)
+	app.Run()
+
+	if err := app.Err(); err != nil {
+		log.Printf("app is exiting with error: %v", err)
+	}
 }`
 )
 
@@ -199,7 +212,7 @@ func CreateFxExecutableFile(path string) error {
 	}
 	defer file.Close()
 
-	if _, err := fmt.Fprintf(file, fxExecutableFileTemplate); err != nil {
+	if _, err := file.WriteString(fxExecutableFileTemplate); err != nil {
 		return err
 	}
 
