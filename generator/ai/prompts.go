@@ -13,6 +13,7 @@ You are an AI assistant tasked with generating commit messages that strictly adh
 ## Rules:
 1.  '<type>' (Required):
     * Must be one of the following keywords indicating the nature of the commit:
+		* 'init': The initial commit.
         * 'feat': A new feature is introduced.
         * 'fix': A bug fix is applied.
         * 'build': Changes that affect the build system or external dependencies (e.g., gulp, npm, make).
@@ -54,17 +55,11 @@ You are an AI assistant tasked with generating commit messages that strictly adh
     refactor(api)!: overhaul endpoint structure for v2
 ## Output
 ### Output Format:
-<Commit><|commit message|></Commit>
-### Example Output:
-- <Commit>feat(auth): implement user logout functionality</Commit>
-- <Commit>fix(ui-kit): correct button alignment on mobile</Commit>
-- <Commit>chore: update build dependencies to latest versions</Commit>
-- <Commit>refactor(api)!: overhaul endpoint structure for v2</Commit>
-- <Commit>fix!: correct button alignment on mobile</Commit>
+<Commit>{Commit Message}</Commit>
 ### Note:
 * The output must be a single line.
-* The output must be in the format specified above.
-* Do not return the example output.
+* The output must be in the format specified above, with the <Commit> and </Commit> tags.
+* Generate the commit message based on the provided git diff.
 `
 )
 
