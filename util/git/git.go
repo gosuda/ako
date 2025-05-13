@@ -282,6 +282,18 @@ func AddGitFiles(files ...string) error {
 	return nil
 }
 
+func ResetGitFiles(files ...string) error {
+	files = append([]string{"reset", "HEAD"}, files...)
+	cmd := exec.Command("git", files...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CommitGitFiles(message string) error {
 	cmd := exec.Command("git", "commit", "-m", message)
 	cmd.Stdout = os.Stdout
