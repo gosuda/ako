@@ -113,6 +113,26 @@ var rootCmd = &cli.Command{
 			},
 		},
 		{
+			Name:    "ai",
+			Aliases: []string{"a"},
+			Usage:   "Interact with AI",
+			Commands: []*cli.Command{
+				{
+					Name:    "init",
+					Aliases: []string{"i"},
+					Usage:   "Initialize AI configuration",
+					Action: func(ctx context.Context, command *cli.Command) error {
+						if err := ai.InitConfig(); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						log.Println("AI configuration initialized successfully")
+						return nil
+					},
+				},
+			},
+		},
+		{
 			Name:    "go",
 			Aliases: []string{"g"},
 			Usage:   "Organize Go project",
@@ -273,18 +293,27 @@ var rootCmd = &cli.Command{
 							return cli.Exit(err.Error(), 1)
 						}
 
-						if len(files) == 0 {
+						rollbackSwitch := true
+
+						switch len(files) {
+						case 0:
 							log.Println("No unstaged files found")
-							return nil
-						}
+						default:
+							selected, err := git.SelectUnstagedFilesToStage(files)
+							if err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
 
-						selected, err := git.SelectUnstagedFilesToStage(files)
-						if err != nil {
-							return cli.Exit(err.Error(), 1)
-						}
-
-						if err := git.StageFiles(selected); err != nil {
-							return cli.Exit(err.Error(), 1)
+							if err := git.StageFiles(selected); err != nil {
+								return cli.Exit(err.Error(), 1)
+							}
+							defer func() {
+								if rollbackSwitch && len(selected) > 0 {
+									if err := git.UnstageFiles(selected); err != nil {
+										log.Printf("Error unstaging files: %s", err.Error())
+									}
+								}
+							}()
 						}
 
 						diff, err := git.GetDiffStagedFiles()
@@ -312,6 +341,8 @@ var rootCmd = &cli.Command{
 
 							parsed, err := ai.GetCommitMessageOutputFrom(generated.String())
 							if err != nil {
+								log.Printf("Error parsing commit message: %s", err.Error())
+								log.Println(parsed)
 								generationErrorCount++
 								if generationErrorCount >= maxGenerationErrorCount {
 									return cli.Exit(err.Error(), 1)
@@ -319,12 +350,42 @@ var rootCmd = &cli.Command{
 								continue
 							}
 
-							confirm, err := ai.Confirm("Confirm commit message: `" + parsed + "`?")
-							if err != nil {
+							const (
+								edit       = "|> Edit && Commit"
+								regenerate = "|> Regenerate"
+								rollback   = "|> Rollback"
+							)
+							next := ""
+							if err := survey.AskOne(&survey.Select{
+								Message: "Confirm commit message",
+								Options: []string{parsed, regenerate, edit, rollback},
+							}, &next, survey.WithValidator(survey.Required)); err != nil {
 								return cli.Exit(err.Error(), 1)
 							}
 
-							if confirm {
+							switch next {
+							case regenerate:
+								log.Println("Retrying commit message generation...")
+							case rollback:
+								log.Println("Rollback staged files")
+
+								return nil
+							case edit:
+								message := ""
+								if err := survey.AskOne(&survey.Editor{
+									Message:       "Edit commit message",
+									Default:       parsed,
+									AppendDefault: true,
+								}, &message, survey.WithValidator(survey.Required)); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								parsed = message
+								fallthrough
+							default:
+								rollbackSwitch = false
+								log.Printf("Generated commit message: %s", parsed)
+
 								if err := git.CommitGitFiles(parsed); err != nil {
 									return cli.Exit(err.Error(), 1)
 								}
@@ -332,8 +393,6 @@ var rootCmd = &cli.Command{
 								log.Printf("Committed files with message: %s", parsed)
 
 								return nil
-							} else {
-								log.Println("Retrying commit message generation...")
 							}
 						}
 					},
