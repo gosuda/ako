@@ -48,7 +48,6 @@ linters:
     - ineffassign
     - interfacebloat
     - intrange
-    - ireturn
     - loggercheck
     - maintidx
     - makezero
@@ -109,6 +108,7 @@ linters:
     - funcorder
     - gochecknoinits
     - nonamedreturns
+    - ireturn
   exclusions:
     generated: lax
     warn-unused: true
@@ -129,11 +129,20 @@ linters:
           - forbidigo
     paths:
       - ".*/lib/adapter/gen/*.go$"
+  settings:
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          yaml: snake
+          xml: camel
+    funlen:
+      lines: 150
+      statements: 80
+      ignore-comments: true
 formatters:
   enable:
-    - gci
     - gofmt
-    - gofumpt
     - goimports
     - golines
   exclusions:
