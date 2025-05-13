@@ -26,10 +26,10 @@ import (
 	"go.uber.org/fx"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()), ConfigRegister())
+var Module = fx.Module("{{.package_name}}",
+	fx.Provide(ConfigRegister()),
+	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
+)
 
 // ConfigRegister is the fx.Provide function for the config.
 // Modify the config according to your needs.

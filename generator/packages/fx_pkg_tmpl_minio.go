@@ -30,10 +30,10 @@ import (
 	"go.uber.org/fx"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()), ConfigRegister())
+var Module = fx.Module("{{.package_name}}",
+	fx.Provide(ConfigRegister()),
+	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
+)
 
 func ConfigRegister() func() *Config {
 	return func() *Config {
@@ -77,7 +77,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 				Secure: param.Cfg.UseSSL,
 			})
 			if err != nil {
-				return err
+				return fmt.Errorf("minio.New: %w", err)
 			}
 
 			cli.config = param.Cfg
@@ -90,14 +90,14 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 		},
 	})
 
-	return &{{.client_name}}{}
+	return cli
 }
 
 type PutOptions minio.PutObjectOptions
 
 func (c *{{.client_name}}) putObject(ctx context.Context, objectName string, reader io.Reader, option PutOptions) error {
 	if _, err := c.conn.PutObject(ctx, c.config.Bucket, objectName, reader, -1, minio.PutObjectOptions(option)); err != nil {
-		return err
+		return fmt.Errorf("minio.PutObject: %w", err)
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func (c *{{.client_name}}) putObject(ctx context.Context, objectName string, rea
 func (c *{{.client_name}}) presignedPutObject(ctx context.Context, objectName string, expires time.Duration) (string, error) {
 	u, err := c.conn.PresignedPutObject(ctx, c.config.Bucket, objectName, expires)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("minio.PresignedPutObject: %w", err)
 	}
 
 	return u.String(), nil
@@ -117,7 +117,7 @@ type GetOptions minio.GetObjectOptions
 func (c *{{.client_name}}) getObject(ctx context.Context, objectName string, option GetOptions) (io.ReadCloser, error) {
 	reader, err := c.conn.GetObject(ctx, c.config.Bucket, objectName, minio.GetObjectOptions(option))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("minio.GetObject: %w", err)
 	}
 
 	context.AfterFunc(ctx, func() {
@@ -130,7 +130,7 @@ func (c *{{.client_name}}) getObject(ctx context.Context, objectName string, opt
 func (c *{{.client_name}}) presignedGetObject(ctx context.Context, objectName string, expires time.Duration, reqParams url.Values) (string, error) {
 	u, err := c.conn.PresignedGetObject(ctx, c.config.Bucket, objectName, expires, reqParams)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("minio.PresignedGetObject: %w", err)
 	}
 
 	return u.String(), nil
@@ -140,7 +140,7 @@ type RemoveOption minio.RemoveObjectOptions
 
 func (c *{{.client_name}}) removeObject(ctx context.Context, objectName string, option RemoveOption) error {
 	if err := c.conn.RemoveObject(ctx, c.config.Bucket, objectName, minio.RemoveObjectOptions(option)); err != nil {
-		return err
+		return fmt.Errorf("minio.RemoveObject: %w", err)
 	}
 
 	return nil

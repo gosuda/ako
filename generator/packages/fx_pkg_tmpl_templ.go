@@ -29,10 +29,10 @@ import (
 
 //go:generate go tool templ generate
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()))
+var Module = fx.Module("{{.package_name}}",
+	fx.Provide(ConfigRegister()),
+	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
+)
 
 type Param struct {
 	fx.In

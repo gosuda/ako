@@ -29,10 +29,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-// You can append interfaces into the fx.As() function to register multiple interfaces.
-var Register = fx.Provide(fx.Annotate(New, fx.As()))
+var Module = fx.Module("{{.package_name}}",x
+	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
+)
 
 type Param struct {
 	fx.In
@@ -46,13 +45,13 @@ type {{.client_name}} struct {
 func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 	cli := &{{.client_name}}{}
 
+	logger := zap.New(zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), os.Stdout, zapcore.DebugLevel))
+
+	cli.writer = os.Stdout
+	cli.logger = logger
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			logger := zap.New(zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), os.Stdout, zapcore.DebugLevel))
-
-			cli.writer = os.Stdout
-			cli.logger = logger
-
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
