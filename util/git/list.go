@@ -123,7 +123,7 @@ func SelectUnstagedFilesToStage(files []*UnstagedFile) ([]*UnstagedFile, error) 
 		Message: "Select files to stage:",
 		Options: candidates,
 		Help:    "Use space to select, enter to confirm",
-	}, &selected, survey.WithValidator(survey.Required)); err != nil {
+	}, &selected); err != nil {
 		return nil, err
 	}
 
@@ -151,6 +151,23 @@ func StageFiles(files []*UnstagedFile) error {
 	}
 
 	if err := AddGitFiles(filePaths...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UnstageFiles(files []*UnstagedFile) error {
+	if len(files) == 0 {
+		return nil
+	}
+
+	filePaths := make([]string, 0, len(files))
+	for _, file := range files {
+		filePaths = append(filePaths, file.Path)
+	}
+
+	if err := ResetGitFiles(filePaths...); err != nil {
 		return err
 	}
 
