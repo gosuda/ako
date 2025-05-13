@@ -71,9 +71,9 @@ import (
 	"go.uber.org/fx"
 )
 
-// Register is the fx.Provide function for the client.
-// It registers the client as a dependency in the fx application.
-var Register = fx.Provide(New)
+var Module = fx.Module("{{.package_name}}",
+	fx.Provide(New),
+)
 
 type Param struct {
 	fx.In
