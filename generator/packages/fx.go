@@ -40,7 +40,7 @@ import (
 )
 
 var Module = fx.Module("{{.package_name}}",
-	fx.Provide(New, ConfigRegister()),
+	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */)), ConfigRegister()),
 )
 
 func ConfigRegister() func() *Config {
@@ -51,6 +51,7 @@ func ConfigRegister() func() *Config {
 
 type Param struct {
 	fx.In
+	Cfg *Config
 }
 
 type Config struct {

@@ -84,3 +84,12 @@ func SelectCmdName() (string, error) {
 
 	return cmdName, nil
 }
+
+func SelectCmdNameForBuild() (string, error) {
+	name, err := SelectCmdName()
+	if err != nil {
+		return "", err
+	}
+
+	return "./" + filepath.ToSlash(filepath.Join(RootPackageCmd, name)), nil
+}
