@@ -19,7 +19,7 @@ var (
 	globalConfigNotExists bool
 )
 
-const k3dConfigFileName = "k3d_config.yaml"
+const k3dConfigFileName = ".ako/k3d_config.yaml"
 
 func getK3dConfigPath() string {
 	return filepath.Join(k8sManifestFolder, k3dConfigFileName)
