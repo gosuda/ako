@@ -61,7 +61,7 @@ Go 프로젝트를 시작하고 지속적으로 관리하는 과정에는 다음
         * `ako go cmd` (`ako g c`): 새로운 실행 파일(예: API 서버, 배치 워커)의 기본 구조와 Dockerfile 생성을 자동화합니다.
     * Protobuf 관리:
         * `proto/`: Protocol Buffers 등 IDL 원본 파일을 관리합니다.
-        * `lib/gen/`: `proto/` 파일로부터 자동 생성된 Go 코드를 위치시킵니다.
+        * `lib/adapter/gen/`: `proto/` 파일로부터 자동 생성된 Go 코드를 위치시킵니다.
         * `ako go buf` (`ako g f`): `buf generate` 명령 실행을 간소화하여 IDL 기반 코드 생성을 용이하게 합니다.
     * 이 구조와 자동화 도구를 통해 개발자는 책임 분리와 의존성 관리를 고려하여 애플리케이션을 효율적으로 개발할 수 있습니다.
 

@@ -61,7 +61,7 @@ Starting and continuously managing Go projects often involves the following inef
         * `ako go cmd` (`ako g c`): Automates the generation of the basic structure and Dockerfile for new executables (e.g., API server, batch worker).
     * Protobuf Management:
         * `proto/`: Manages IDL source files like Protocol Buffers.
-        * `lib/gen/`: Locates Go code automatically generated from `proto/` files.
+        * `lib/adapter/gen/`: Locates Go code automatically generated from `proto/` files.
         * `ako go buf` (`ako g f`): Simplifies running the `buf generate` command for easy IDL-based code generation.
     * This structure and automation tools allow developers to efficiently build robust and flexible applications based on clear separation of concerns and dependency management.
 
