@@ -69,6 +69,10 @@ var rootCmd = &cli.Command{
 					return cli.Exit(err.Error(), 1)
 				}
 
+				if err := k8s.InstallKo(); err != nil {
+					return cli.Exit(err.Error(), 1)
+				}
+
 				if err := packages.CreateLoggerWriterFile(loggerLibrary); err != nil {
 					return cli.Exit(err.Error(), 1)
 				}
@@ -256,6 +260,47 @@ var rootCmd = &cli.Command{
 						}
 
 						if err := docker.GenerateGoImageFile(name); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
+				{
+					Name:    "run",
+					Usage:   "Run the Go application",
+					Aliases: []string{"r"},
+					Action: func(ctx context.Context, command *cli.Command) error {
+						selected, err := packages.SelectCmdNameForBuild()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						args, err := module.InputGoCmdArgs()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if err := module.RunGoCmd(ctx, selected, args...); err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						return nil
+					},
+				},
+				{
+					Name:    "build",
+					Usage:   "Build the Go application",
+					Aliases: []string{"b"},
+					Action: func(ctx context.Context, command *cli.Command) error {
+						selected, err := packages.SelectCmdNameForBuild()
+						if err != nil {
+							return cli.Exit(err.Error(), 1)
+						}
+
+						if err := k8s.BuildKo(k8s.KoBuildOption{
+							Path: selected,
+						}); err != nil {
 							return cli.Exit(err.Error(), 1)
 						}
 
@@ -477,6 +522,80 @@ var rootCmd = &cli.Command{
 						}
 
 						return nil
+					},
+				},
+				{
+					Name:    "tag",
+					Aliases: []string{"t"},
+					Usage:   "Manage Git tags",
+					Commands: []*cli.Command{
+						{
+							Name:    "set",
+							Aliases: []string{"s"},
+							Usage:   "Set a new tag",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								tag, err := git.InputTag()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								memo, err := git.InputTagMemo()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := git.SetTag(tag, memo); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Set tag: %s", tag)
+								return nil
+							},
+						},
+						{
+							Name:    "delete",
+							Aliases: []string{"d"},
+							Usage:   "Delete a tag",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								tag, err := git.InputTag()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if err := git.DeleteTag(tag); err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								log.Printf("Deleted tag: %s", tag)
+								return nil
+							},
+						},
+						{
+							Name:    "list",
+							Aliases: []string{"l"},
+							Usage:   "List all tags",
+							Action: func(ctx context.Context, command *cli.Command) error {
+								tags, err := git.ListTags()
+								if err != nil {
+									return cli.Exit(err.Error(), 1)
+								}
+
+								if len(tags) == 0 {
+									log.Println("No tags found")
+									return nil
+								}
+
+								tbl := table.NewTableBuilder("TAG", "CREATED AT", "MEMO")
+
+								for _, tag := range tags {
+									tbl.AppendRow(tag.Name, tag.Date, tag.Memo)
+								}
+
+								tbl.Print()
+
+								return nil
+							},
+						},
 					},
 				},
 			},
