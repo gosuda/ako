@@ -30,6 +30,8 @@ import (
 	"go.uber.org/fx"
 )
 
+const Name = "{{.client_name}}"
+
 var Module = fx.Module("{{.package_name}}",
 	fx.Provide(ConfigRegister()),
 	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
@@ -100,7 +102,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			if len(param.Cfg.ClientInfo.Products) > 0 {
 				opt.ClientInfo = param.Cfg.ClientInfo
 			}
-		
+
 			conn, err := clickhouse.Open(&opt)
 			if err != nil {
 				return fmt.Errorf("failed to open connection: %w", err)

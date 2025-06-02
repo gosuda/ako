@@ -27,6 +27,8 @@ import (
 	"go.uber.org/fx"
 )
 
+const Name = "{{.client_name}}"
+
 const driverName = "duckdb"
 
 var Module = fx.Module("{{.package_name}}",

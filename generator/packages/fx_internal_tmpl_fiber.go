@@ -29,6 +29,8 @@ import (
 	"go.uber.org/fx"
 )
 
+const Name = "{{.server_name}}"
+
 var Module = fx.Module("{{.package_name}}",
 	fx.Provide(New, ConfigRegister()),
 	fx.Invoke(func(svr *{{.server_name}}) {}),

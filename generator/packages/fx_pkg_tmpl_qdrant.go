@@ -29,6 +29,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+const Name = "{{.client_name}}"
+
 var Module = fx.Module("{{.package_name}}",
 	fx.Provide(ConfigRegister()),
 	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
@@ -93,7 +95,7 @@ func New(ctx context.Context, lc fx.Lifecycle, param Param) *{{.client_name}} {
 			}
 
 			cli.client = client
-			
+
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {

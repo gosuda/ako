@@ -29,6 +29,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const Name = "{{.client_name}}"
+
 var Module = fx.Module("{{.package_name}}",
 	fx.Provide(ConfigRegister()),
 	fx.Provide(fx.Annotate(New, fx.As(/* implemented interfaces */))),
