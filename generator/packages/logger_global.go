@@ -89,7 +89,7 @@ func NewBufferedWriter(writer io.WriteCloser) *BufferedWriter {
 func (bw *BufferedWriter) Write(p []byte) (n int, err error) {
 	n, err = bw.writer.Write(p)
 	if err != nil {
-		return n, err
+		return n, fmt.Errorf("bufio.Writer.Write: %w", err)
 	}
 
 	return n, nil
@@ -97,17 +97,17 @@ func (bw *BufferedWriter) Write(p []byte) (n int, err error) {
 
 func (bw *BufferedWriter) Sync() error {
 	if err := bw.writer.Flush(); err != nil {
-		return err
+		return fmt.Errorf("bufio.Writer.Flush: %w", err)
 	}
 	return nil
 }
 
 func (bw *BufferedWriter) Close() error {
 	if err := bw.writer.Flush(); err != nil {
-		return err
+		return fmt.Errorf("bufio.Writer.Flush: %w", err)
 	}
 	if err := bw.underlying.Close(); err != nil {
-		return err
+		return fmt.Errorf("underlying.Close: %w", err)
 	}
 	return nil
 }
