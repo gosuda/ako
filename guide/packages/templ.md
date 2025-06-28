@@ -93,3 +93,38 @@ func makeGetUserPageHandler(renderer renderer.Renderer) http.HandlerFunc {
 	}
 }
 ```
+
+### Prerequisites
+
+1.  **Chi Module:** You need a `chi` module that provides a `chi.Router`. Refer to the `chi.md` guide for creating one.
+
+### Tooling
+
+`templ` is a CLI tool that generates Go code from `.templ` files. You must have it available to generate the necessary Go code for your components.
+
+#### Tool Dependency Management (Go 1.24+ Recommended)
+
+With Go 1.24 and later, you can manage tool dependencies directly within your `go.mod` file using the `go get -tool` command. This is the official and recommended way to ensure that all developers and CI environments use the exact same version of a tool.
+
+1.  **Add the tool to `go.mod`:**
+    Run the following command to add `templ` as a tool dependency. The `-tool` flag tells the `go` command to add it as a development tool, not a regular dependency.
+
+    ```sh
+    go get -tool github.com/a-h/templ/cmd/templ
+    ```
+
+    This will add a `tool` directive to your `go.mod` file, similar to this:
+    ```
+    toolchain go1.24.0
+
+    tool github.com/a-h/templ/cmd/templ v0.2.648
+    ```
+
+2.  **Usage:**
+    You can now run `templ` using the `go tool` command, which executes the specific version defined in your `go.mod`.
+
+    ```sh
+    go tool templ generate
+    ```
+
+### How It Works

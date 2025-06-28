@@ -147,3 +147,34 @@ func (r *Repository) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, e
 
 // ... other interface methods
 ```
+
+### Tooling
+
+`sqlc` is a code generator that creates type-safe Go code from SQL. You must install it to use this module.
+
+#### Tool Dependency Management (Go 1.24+ Recommended)
+
+With Go 1.24 and later, you can manage tool dependencies directly within your `go.mod` file using the `go get -tool` command. This is the official and recommended way to ensure that all developers and CI environments use the exact same version of a tool.
+
+1.  **Add the tool to `go.mod`:**
+    Run the following command to add `sqlc` as a tool dependency. The `-tool` flag tells the `go` command to add it as a development tool, not a regular dependency.
+
+    ```sh
+    go get -tool github.com/sqlc-dev/sqlc/cmd/sqlc
+    ```
+
+    This will add a `tool` directive to your `go.mod` file, similar to this:
+    ```
+    toolchain go1.24.0
+
+    tool github.com/sqlc-dev/sqlc/cmd/sqlc v1.26.0
+    ```
+
+2.  **Usage:**
+    You can now run `sqlc` using the `go tool` command, which executes the specific version defined in your `go.mod`.
+
+    ```sh
+    go tool sqlc generate
+    ```
+
+    You should run this command from the directory containing your `sqlc.yaml` file.

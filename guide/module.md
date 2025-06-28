@@ -294,3 +294,25 @@ func main() {
 	).Run()
 }
 ```
+
+---
+
+### Tooling Dependencies
+
+Some `pkg` modules may require external command-line interface (CLI) tools for code generation (e.g., `sqlc`, `templ`). These tools are development-time dependencies and should not be part of the application's runtime.
+
+**Installation**
+
+These tools **must** be installed using the `go install` command to place the executable in your `$GOPATH/bin` directory. For example:
+
+```sh
+# Example for installing sqlc
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+# Example for installing templ
+go install github.com/a-h/templ/cmd/templ@latest
+```
+
+**Documentation**
+
+If a `pkg` module requires such a tool, its installation command and usage **must** be clearly documented in its corresponding `guide/packages/*.md` file. This ensures that other developers can easily set up their environment to work with the module.

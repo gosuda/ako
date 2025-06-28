@@ -65,25 +65,10 @@ These are the non-negotiable rules of this architecture. They must be strictly f
         opt: paths=source_relative
     ```
 
-#### Database (`sqlc`)
+*   **Tool Dependency Management (Go 1.24+ Recommended)**: It is recommended to manage the `buf` CLI as a versioned tool dependency. This ensures that all developers and CI environments use the exact same version of the tool.
 
-*   **Usage**: `sqlc` is the recommended tool for database interactions.
-*   **SQL Source Location**: Schema and query `.sql` files should be located within the relevant `pkg` implementation directory (e.g., `pkg/client/postgres/sql/`).
-*   **Generated Code Destination**: Generated Go code **must** be placed within the package that contains the source SQL files (e.g., `pkg/client/postgres/`).
-*   **Configuration Template (`sqlc.yaml`)**:
-    ```yaml
-    # Place this in the relevant pkg directory, e.g., pkg/client/postgres/sqlc.yaml
-    version: "2"
-    sql:
-      - engine: "postgresql"
-        queries: "sql/queries/"
-        schema: "sql/migrations/"
-        gen:
-          go:
-            package: "postgres"
-            out: "../"
-            sql_package: "pgx/v5"
-    ```
+    1.  **Add the tool to `go.mod`**: Run `go get -tool buf.build/buf/cmd/buf` to add it as a tool dependency.
+    2.  **Usage**: Run `go tool buf generate` to execute the version defined in your `go.mod`.
 
 ### Code Style & Conventions
 
