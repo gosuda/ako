@@ -108,6 +108,12 @@ func NewUserRepository(p Param) (*UserRepository, error) {
 }
 ```
 
+### Technology-Specific Examples
+
+In addition to the standard `fx.go` template, you can find detailed generation guides for specific technology stacks in the `guide/packages/` subdirectory. These guides provide concrete, ready-to-use Fx module examples for common components like databases (Postgres, Redis), message queues (Kafka, NATS), and HTTP servers (Chi, Fiber).
+
+When writing a new module, it is recommended to first check the `guide/packages/` directory for a guide on a similar technology and use it as a baseline.
+
 ### Module Composition in `main.go`
 
 As described in `entry_point.md`, the `cmd/.../main.go` file is responsible for assembling all the application's modules. Fx will build the dependency graph, execute the constructors in the correct order, and run the application.
