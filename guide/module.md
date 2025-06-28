@@ -131,7 +131,7 @@ func NewUserRepository(p Param) (user.Repository, error) {
 The `internal/service` layer is where core business logic lives. Its role is to **compose** multiple `lib` interfaces from different `pkg` providers to orchestrate complex business workflows.
 
 **Key Characteristics:**
-*   **Depends only on `lib` interfaces.**
+*   **Depends only on the `lib` package (interfaces and data structures).**
 *   Does not depend on `internal/controller` or `pkg`.
 *   Uses `fx.Provide` to make the service available to the `controller` layer.
 *   Typically does not manage resources directly, so `fx.Lifecycle` is less common here.
@@ -192,7 +192,7 @@ func NewService(p Param) *Service {
 The `internal/controller` layer acts as the entry point for external requests (e.g., HTTP, gRPC). Its primary role is to handle incoming data, call the appropriate `service` methods, and formulate a response. It does not contain business logic.
 
 **Key Characteristics:**
-*   **Depends on `internal/service` structs and `lib` interfaces.**
+*   **Depends on `internal/service` structs and the `lib` package.**
 *   Uses `fx.Invoke` to register handlers (e.g., HTTP routes). Registration is a side effect, and the controller itself is not usually a dependency for other components, so `fx.Invoke` is preferred over `fx.Provide`.
 *   The invoked function receives all dependencies needed to set up the handlers.
 
