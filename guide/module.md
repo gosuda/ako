@@ -9,14 +9,26 @@ This document provides a comprehensive guide to creating standardized, modular c
 3.  **Interface-Driven**: Modules that provide implementations (typically in `pkg`) **must** provide them as `lib` interfaces using `fx.As`. This decouples the business logic from concrete implementations.
 4.  **Lifecycle Aware**: Modules that manage resources (like database connections or message queue consumers) **must** use `fx.Lifecycle` to register `OnStart` and `OnStop` hooks for proper initialization and graceful shutdown.
 
-### Standard `fx.go` Template
+### Module Templates by Layer
 
-Every component (`pkg`, `internal/service`, `internal/controller`) **must** have a corresponding `fx.go` file that defines its Fx module. This file acts as the single entry point for the component into the application's dependency injection graph.
+The application is divided into distinct layers (`pkg`, `internal/service`, `internal/controller`), and each has a specific role within the Fx dependency injection framework.
 
-Below is the standard, heavily commented template that **must** be followed.
+---
+
+### 1. The `pkg` Module: The Provider
+
+The `pkg` layer's role is to provide a concrete, technology-specific **implementation** of an interface defined in the `lib` layer. It acts as a "Provider" of functionality to the rest of the application.
+
+**Key Characteristics:**
+*   **Implements a `lib` interface.**
+*   Uses `fx.Provide` with `fx.Annotate` and `fx.As` to bind the concrete type to its interface.
+*   Manages the lifecycle of the resource it provides (e.g., a database connection).
+*   **Must not** depend on other `lib` interfaces.
+
+**Standard `fx.go` Template for a `pkg` Module:**
 
 ```go
-// The package name must match the directory name.
+// In pkg/client/postgres/fx.go
 package postgres
 
 import (
@@ -29,7 +41,7 @@ import (
 
 // Module exports the component's functionality to the Fx application.
 // The module name (e.g., "postgres") should be descriptive and unique within the application.
-var Module = fx.Module("postgres",
+var Module = fx.Module("postgres-user-repo",
 	// fx.Provide lists all the constructors this module offers to the DI container.
 	fx.Provide(
 		// The main constructor for the component.
@@ -53,12 +65,14 @@ type Config struct {
 	PoolSize int    `yaml:"poolSize"`
 }
 
-// ConfigRegister is the standard constructor for the Config struct.
+// ConfigRegister loads and provides the module's configuration.
 // In a real application, this function would contain logic to load and validate
 // the configuration for this module.
-func ConfigRegister() *Config {
+func ConfigRegister() (*Config, error) {
 	// For example: load from a config file.
-	return &Config{}
+	var cfg Config
+	// ... loading logic ...
+	return &cfg, nil
 }
 
 // Param is a struct that groups all dependencies for the main constructor.
@@ -77,16 +91,18 @@ type Param struct {
 
 // UserRepository is the concrete struct that implements the user.Repository interface.
 type UserRepository struct {
-	// e.g., db *sql.DB
+	// e.g., db *pgxpool.Pool
 }
 
 // NewUserRepository is the constructor for the UserRepository.
 // It receives all its dependencies via the Param struct, provided by Fx.
-func NewUserRepository(p Param) (*UserRepository, error) {
+func NewUserRepository(p Param) (user.Repository, error) {
 	// The compile-time interface check is mandatory.
 	var _ user.Repository = (*UserRepository)(nil)
 
-	repo := &UserRepository{}
+	repo := &UserRepository{
+		// ... initialize fields ...
+	}
 
 	// The Fx lifecycle is used to register startup and shutdown hooks.
 	// This is mandatory for any resource that needs to be initialized or cleaned up.
@@ -108,34 +124,172 @@ func NewUserRepository(p Param) (*UserRepository, error) {
 }
 ```
 
+---
+
+### 2. The `internal/service` Module: The Composer
+
+The `internal/service` layer is where core business logic lives. Its role is to **compose** multiple `lib` interfaces from different `pkg` providers to orchestrate complex business workflows.
+
+**Key Characteristics:**
+*   **Depends only on `lib` interfaces.**
+*   Does not depend on `internal/controller` or `pkg`.
+*   Uses `fx.Provide` to make the service available to the `controller` layer.
+*   Typically does not manage resources directly, so `fx.Lifecycle` is less common here.
+
+**Standard `fx.go` Template for a `service` Module:**
+
+```go
+// In internal/service/membership/fx.go
+package membership
+
+import (
+	"go.uber.org/fx"
+	// Import necessary lib interfaces.
+	"your/project/lib/adapter/notification"
+	"your/project/lib/logger"
+	"your/project/lib/repository/user"
+)
+
+var Module = fx.Module("membership-service",
+	fx.Provide(
+		NewService,
+	),
+)
+
+// Param struct for the service. It depends ONLY on interfaces from `lib`.
+type Param struct {
+	fx.In
+
+	UserRepo user.Repository
+	Notifier notification.Adapter
+	Logger   logger.Logger
+}
+
+// Service struct holds its dependencies, which are lib interfaces.
+type Service struct {
+	userRepo user.Repository
+	notifier notification.Adapter
+	logger   logger.Logger
+}
+
+// NewService is the constructor for the membership service.
+func NewService(p Param) *Service {
+	return &Service{
+		userRepo: p.UserRepo,
+		notifier: p.Notifier,
+		logger:   p.Logger,
+	}
+}
+
+// ... service methods that orchestrate business logic ...
+// func (s *Service) RegisterUser(...) { ... }
+```
+
+---
+
+### 3. The `internal/controller` Module: The Handler
+
+The `internal/controller` layer acts as the entry point for external requests (e.g., HTTP, gRPC). Its primary role is to handle incoming data, call the appropriate `service` methods, and formulate a response. It does not contain business logic.
+
+**Key Characteristics:**
+*   **Depends on `internal/service` structs and `lib` interfaces.**
+*   Uses `fx.Invoke` to register handlers (e.g., HTTP routes). Registration is a side effect, and the controller itself is not usually a dependency for other components, so `fx.Invoke` is preferred over `fx.Provide`.
+*   The invoked function receives all dependencies needed to set up the handlers.
+
+**Standard `fx.go` Template for a `controller` Module:**
+
+```go
+// In internal/controller/userapi/fx.go
+package userapi
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5" // Example using chi router
+	"go.uber.org/fx"
+
+	"your/project/lib/logger"
+	// Import the service it depends on.
+	"your/project/internal/service/membership"
+)
+
+// Module uses fx.Invoke because a controller's primary role is to register
+// handlers, which is a side effect, not providing a new dependency.
+var Module = fx.Module("userapi-controller",
+	fx.Invoke(RegisterRoutes),
+)
+
+// Param struct for the controller.
+// It depends on services from `internal/service` and components via `lib` interfaces.
+type Param struct {
+	fx.In
+
+	Router        chi.Router // Assumes a chi.Router is provided by a pkg module.
+	MembershipSvc *membership.Service
+	Logger        logger.Logger
+}
+
+// Controller holds dependencies needed by its handler methods.
+type Controller struct {
+	service *membership.Service
+	logger  logger.Logger
+}
+
+// RegisterRoutes creates the controller and sets up its HTTP routes.
+func RegisterRoutes(p Param) {
+	c := &Controller{
+		service: p.MembershipSvc,
+		logger:  p.Logger,
+	}
+	p.Router.Post("/users", c.CreateUser)
+	// ... other routes
+}
+
+// CreateUser is an example handler method.
+func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
+	// 1. Decode request.
+	// 2. Call c.service to perform business logic.
+	// 3. Encode and write response.
+}
+```
+
+---
+
 ### Technology-Specific Examples
 
-In addition to the standard `fx.go` template, you can find detailed generation guides for specific technology stacks in the `guide/packages/` subdirectory. These guides provide concrete, ready-to-use Fx module examples for common components like databases (Postgres, Redis), message queues (Kafka, NATS), and HTTP servers (Chi, Fiber).
+In addition to these standard templates, you can find detailed generation guides for specific technology stacks in the `guide/packages/` subdirectory. These guides provide concrete, ready-to-use Fx module examples for common components like databases (Postgres, Redis), message queues (Kafka, NATS), and HTTP servers (Chi, Fiber).
 
 When writing a new module, it is recommended to first check the `guide/packages/` directory for a guide on a similar technology and use it as a baseline.
 
 ### Module Composition in `main.go`
 
-As described in `entry_point.md`, the `cmd/.../main.go` file is responsible for assembling all the application's modules. Fx will build the dependency graph, execute the constructors in the correct order, and run the application.
+As described in `entry_point.md`, the `cmd/.../app.go` file is responsible for assembling all the application's modules. Fx will build the dependency graph, execute the constructors in the correct order, and run the application.
 
 ```go
+// In cmd/publicapi/app.go
 package main
 
 import (
 	"go.uber.org/fx"
 
 	// Import all necessary modules
-	"your/project/pkg/client/postgres"
-	"your/project/internal/service/user"
 	"your/project/internal/controller/userapi"
-	// ... and so on
+	"your/project/internal/service/membership"
+	"your/project/pkg/client/chi"
+	"your/project/pkg/client/postgres"
+	"your/project/pkg/client/zerolog"
 )
 
 func main() {
 	fx.New(
 		// List all modules here. Fx resolves the dependency order.
+		// pkg modules (Providers)
+		chi.Module,
 		postgres.Module,
-		user.Module,
+		zerolog.Module,
+		// service modules (Composers)
+		membership.Module,
+		// controller modules (Handlers)
 		userapi.Module,
 	).Run()
 }
