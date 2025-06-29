@@ -39,6 +39,9 @@ import (
 	"your/project/lib/repository/user"
 )
 
+// The compile-time interface check is mandatory.
+var _ user.Repository = (*UserRepository)(nil)
+
 // Module exports the component's functionality to the Fx application.
 // The module name (e.g., "postgres") should be descriptive and unique within the application.
 var Module = fx.Module("postgres-user-repo",
@@ -96,10 +99,7 @@ type UserRepository struct {
 
 // NewUserRepository is the constructor for the UserRepository.
 // It receives all its dependencies via the Param struct, provided by Fx.
-func NewUserRepository(p Param) (user.Repository, error) {
-	// The compile-time interface check is mandatory.
-	var _ user.Repository = (*UserRepository)(nil)
-
+func NewUserRepository(p Param) (*UserRepository, error) {
 	repo := &UserRepository{
 		// ... initialize fields ...
 	}
